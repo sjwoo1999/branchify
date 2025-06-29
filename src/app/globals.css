@@ -1,15 +1,27 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #0D0D2B;
+  --foreground: #F0F0F5;
+  --neon-purple: #A259FF;
+  --neon-cyan: #00E0FF;
+  --neon-pink: #FF2E63;
+  --deep-navy: #0D0D2B;
+  --glass-white: #F0F0F5;
+  --electric-yellow: #FFEA00;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-neon-purple: var(--neon-purple);
+  --color-neon-cyan: var(--neon-cyan);
+  --color-neon-pink: var(--neon-pink);
+  --color-deep-navy: var(--deep-navy);
+  --color-glass-white: var(--glass-white);
+  --color-electric-yellow: var(--electric-yellow);
+  --font-sans: 'Inter', system-ui, sans-serif;
+  --font-heading: 'Poppins', system-ui, sans-serif;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -22,5 +34,84 @@
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: 'Inter', system-ui, sans-serif;
+  overflow-x: hidden;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(13, 13, 43, 0.5);
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(45deg, var(--neon-purple), var(--neon-cyan));
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(45deg, var(--neon-cyan), var(--neon-pink));
+}
+
+/* Glass morphism utilities */
+.glass {
+  background: rgba(240, 240, 245, 0.1);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(240, 240, 245, 0.2);
+}
+
+.glass-dark {
+  background: rgba(13, 13, 43, 0.3);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(162, 89, 255, 0.2);
+}
+
+/* Neon glow effects */
+.neon-glow {
+  box-shadow: 0 0 20px rgba(162, 89, 255, 0.5);
+}
+
+.neon-glow-cyan {
+  box-shadow: 0 0 20px rgba(0, 224, 255, 0.5);
+}
+
+.neon-glow-pink {
+  box-shadow: 0 0 20px rgba(255, 46, 99, 0.5);
+}
+
+/* Energy wave animation */
+@keyframes energy-wave {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.1);
+    opacity: 0.7;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.energy-wave {
+  animation: energy-wave 2s ease-in-out infinite;
+}
+
+/* Glow pulse animation */
+@keyframes glow-pulse {
+  0%, 100% {
+    box-shadow: 0 0 20px rgba(162, 89, 255, 0.5);
+  }
+  50% {
+    box-shadow: 0 0 40px rgba(162, 89, 255, 0.8);
+  }
+}
+
+.glow-pulse {
+  animation: glow-pulse 3s ease-in-out infinite;
 }
