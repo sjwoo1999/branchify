@@ -209,22 +209,6 @@ const GoalMap: React.FC<GoalMapProps> = ({
         ))}
       </AnimatePresence>
 
-      {/* 중심 노드 강조 */}
-      {centerNode && (
-        <motion.div
-          className="absolute inset-0 pointer-events-none"
-          style={{
-            left: centerNode.x - 150,
-            top: centerNode.y - 125,
-          }}
-          initial={{ scale: 0 }}
-          animate={{ scale: 1 }}
-          transition={{ duration: 1, delay: 0.5 }}
-        >
-          <div className="w-80 h-60 border-2 border-neon-purple/30 rounded-full glow-pulse" />
-        </motion.div>
-      )}
-
       {/* 컨트롤 버튼들 */}
       <div className="absolute bottom-4 right-4 flex gap-2">
         <NeonButton

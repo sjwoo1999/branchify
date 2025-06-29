@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Goal, CreateGoalRequest } from '@/types';
+import { Goal, CreateGoalRequest, UpdateGoalRequest } from '@/types';
 import { useGoal } from '@/hooks/useGoal';
 import { useRoutine } from '@/hooks/useRoutine';
 import GoalMap from '@/features/goal/GoalMap';
@@ -10,6 +10,7 @@ import GoalCard from '@/features/goal/GoalCard';
 import GoalEditor from '@/features/goal/GoalEditor';
 import GlassCard from '@/components/GlassCard';
 import NeonButton from '@/components/NeonButton';
+import Goal3DMap from '@/features/goal/Goal3DMap';
 
 // 샘플 데이터
 const sampleGoals: Goal[] = [
@@ -85,13 +86,17 @@ export default function HomePage() {
   const loading = false;
   const error = null;
 
-  const handleCreateGoal = async (goalData: CreateGoalRequest) => {
+  const handleCreateGoal = async (goalData: CreateGoalRequest | UpdateGoalRequest) => {
+    // CreateGoalRequest만 처리
+    if (!('title' in goalData) || typeof goalData.title !== 'string') return;
     console.log('새 목표 생성:', goalData);
     setIsEditorOpen(false);
     // 실제로는 createGoal(goalData) 호출
   };
 
-  const handleUpdateGoal = async (goalData: any) => {
+  const handleUpdateGoal = async (goalData: CreateGoalRequest | UpdateGoalRequest) => {
+    // UpdateGoalRequest만 처리
+    if (!('id' in goalData)) return;
     console.log('목표 수정:', goalData);
     setIsEditorOpen(false);
     setEditingGoal(null);
@@ -118,7 +123,7 @@ export default function HomePage() {
     setEditingGoal(null);
   };
 
-  const todayRoutines = []; // getTodayRoutines();
+  const todayRoutines: any[] = []; // getTodayRoutines();
   const completedToday = []; // getCompletedToday();
 
   return (
@@ -189,6 +194,11 @@ export default function HomePage() {
               <div className="text-sm text-glass-white/70">평균 진행률</div>
             </GlassCard>
           </motion.div>
+
+          {/* 3D 네트워크 목표 맵 샘플 */}
+          <div className="mb-10">
+            <Goal3DMap goals={goals.slice(0, 4)} />
+          </div>
 
           {/* Today's Routines */}
           {todayRoutines.length > 0 && (
@@ -293,7 +303,7 @@ export default function HomePage() {
         isOpen={isEditorOpen}
         onClose={closeEditor}
         onSave={editingGoal ? handleUpdateGoal : handleCreateGoal}
-        goal={editingGoal}
+        goal={editingGoal ?? undefined}
         loading={loading}
       />
 
