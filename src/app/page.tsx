@@ -142,179 +142,46 @@ export default function HomePage() {
   const completedToday = []; // getCompletedToday();
 
   return (
-    <div className="min-h-screen bg-deep-navy text-glass-white">
+    <div className="min-h-screen flex flex-col bg-deep-navy text-glass-white">
       {/* Header */}
-      <header className="relative z-10 p-6">
-        <div className="max-w-7xl mx-auto">
-          <div className="flex items-center justify-between">
-            <motion.div
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.5 }}
-            >
-              <h1 className="text-4xl font-bold font-poppins bg-gradient-to-r from-neon-purple via-neon-cyan to-neon-pink bg-clip-text text-transparent">
-                Branchify
-              </h1>
-              <p className="text-glass-white/70 mt-1">네온 기반 목표 관리 플랫폼</p>
-            </motion.div>
-
-            <div className="flex items-center gap-4">
-              <NeonButton
-                variant="purple"
-                onClick={() => setViewMode(viewMode === 'map' ? 'list' : 'map')}
-              >
-                {viewMode === 'map' ? '목록 보기' : '맵 보기'}
-              </NeonButton>
-              <NeonButton
-                variant="cyan"
-                onClick={() => openEditor()}
-              >
-                새 목표
-              </NeonButton>
-            </div>
-          </div>
-        </div>
+      <header className="w-full flex justify-between items-center px-8 py-6">
+        <h1 className="text-3xl font-bold bg-gradient-to-r from-neon-purple to-neon-cyan bg-clip-text text-transparent">Branchify</h1>
+        <button className="border border-neon-cyan text-neon-cyan rounded-full px-6 py-2 hover:bg-neon-cyan/10 transition">새 목표</button>
       </header>
-
-      {/* Main Content */}
-      <main className="relative z-0">
-        <div className="max-w-7xl mx-auto px-6 pb-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-10 py-10">
-            {masterGoals.map(goal => (
-              <Link key={goal.id} href={`/goal/${goal.id}`} className="block hover:scale-105 transition">
-                <MasterGoalCard goal={goal} />
-              </Link>
-            ))}
-          </div>
-
-          {/* Quick Stats */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
-            className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8"
-          >
-            <GlassCard className="text-center">
-              <div className="text-2xl font-bold text-neon-purple">{masterGoals.length}</div>
-              <div className="text-sm text-glass-white/70">총 목표</div>
-            </GlassCard>
-            <GlassCard className="text-center">
-              <div className="text-2xl font-bold text-neon-cyan">
-                {masterGoals.reduce((acc, goal) => acc + goal.subGoals.length, 0)}
+      {/* Main: Only two cards, centered, minimal info */}
+      <main className="flex-1 flex items-center justify-center gap-8">
+        {masterGoals.slice(0, 2).map(goal => (
+          <Link key={goal.id} href={`/goal/${goal.id}`} className="block">
+            <div className="rounded-2xl bg-glass/60 p-8 min-w-[320px] flex flex-col items-start shadow-lg border border-white/10">
+              <h2 className="text-xl font-bold mb-2 text-white drop-shadow">{goal.title}</h2>
+              <div className="w-full h-2 bg-white/10 rounded mb-2">
+                <div className="h-2 bg-neon-cyan rounded" style={{width: `${goal.progress}%`}} />
               </div>
-              <div className="text-sm text-glass-white/70">총 하위 목표</div>
-            </GlassCard>
-            <GlassCard className="text-center">
-              <div className="text-2xl font-bold text-neon-pink">
-                {masterGoals.reduce((acc, goal) => acc + goal.subGoals.filter(g => g.status === 'active').length, 0)}
-              </div>
-              <div className="text-sm text-glass-white/70">진행중</div>
-            </GlassCard>
-            <GlassCard className="text-center">
-              <div className="text-2xl font-bold text-electric-yellow">
-                {Math.round(masterGoals.reduce((acc, goal) => acc + goal.subGoals.reduce((acc, g) => acc + g.progress, 0), 0) / masterGoals.reduce((acc, goal) => acc + goal.subGoals.length, 0))}
-              </div>
-              <div className="text-sm text-glass-white/70">평균 진행률</div>
-            </GlassCard>
-          </motion.div>
-
-          {/* Today's Routines */}
-          {todayRoutines.length > 0 && (
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.3 }}
-              className="mb-8"
-            >
-              <h2 className="text-2xl font-bold font-poppins mb-4">오늘의 루틴</h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {todayRoutines.map((routine) => (
-                  <GlassCard key={routine.id} className="p-4">
-                    <h3 className="font-semibold mb-2">{routine.title}</h3>
-                    <p className="text-sm text-glass-white/70 mb-3">{routine.description}</p>
-                    <div className="flex justify-between items-center">
-                      <span className="text-xs text-neon-cyan">연속 {routine.streak}일</span>
-                      <NeonButton size="sm" variant="cyan">
-                        완료
-                      </NeonButton>
-                    </div>
-                  </GlassCard>
+              <div className="flex gap-2 mb-4">
+                {goal.tags.slice(0,2).map(tag => (
+                  <span key={tag} className="text-xs border border-neon-cyan rounded-full px-2 py-0.5 text-neon-cyan bg-white/5">{tag}</span>
                 ))}
               </div>
-            </motion.div>
-          )}
-
-          {/* Goals Section */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.4 }}
-          >
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-bold font-poppins">목표 관리</h2>
-              <div className="flex gap-2">
-                <NeonButton
-                  size="sm"
-                  variant="purple"
-                  onClick={() => openEditor()}
-                >
-                  새 목표 추가
-                </NeonButton>
-              </div>
+              <span className="text-neon-cyan text-sm font-medium mt-2">상세 보기 →</span>
             </div>
-
-            {viewMode === 'map' ? (
-              <div className="h-[600px] rounded-2xl overflow-hidden">
-                <GoalMap
-                  goals={masterGoals.map(goal => goal.subGoals).flat()}
-                  onGoalClick={setSelectedGoal}
-                  onGoalComplete={handleCompleteGoal}
-                  onGoalEdit={openEditor}
-                  onGoalDelete={handleDeleteGoal}
-                  selectedGoalId={selectedGoal?.id}
-                />
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {masterGoals.map(goal => goal.subGoals).flat().map((goal) => (
-                  <GoalCard
-                    key={goal.id}
-                    goal={goal}
-                    onClick={() => setSelectedGoal(goal)}
-                    onComplete={() => handleCompleteGoal(goal.id)}
-                    onEdit={() => openEditor(goal)}
-                    onDelete={() => handleDeleteGoal(goal.id)}
-                    isSelected={selectedGoal?.id === goal.id}
-                  />
-                ))}
-              </div>
-            )}
-          </motion.div>
-
-          {/* AI Feedback */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.5 }}
-            className="mt-8"
-          >
-            <GlassCard className="p-6 neon-glow-cyan">
-              <div className="flex items-start gap-4">
-                <div className="w-12 h-12 bg-neon-cyan/20 rounded-full flex items-center justify-center">
-                  <span className="text-2xl">🤖</span>
-                </div>
-                <div className="flex-1">
-                  <h3 className="text-lg font-semibold text-neon-cyan mb-2">AI 피드백</h3>
-                  <p className="text-glass-white/80">
-                    "개발자 성장하기" 목표가 65% 완료되었습니다! React 학습이 잘 진행되고 있네요. 
-                    다음 단계로 TypeScript 학습에 더 집중해보시는 것을 추천합니다.
-                  </p>
-                </div>
-              </div>
-            </GlassCard>
-          </motion.div>
-        </div>
+          </Link>
+        ))}
       </main>
+      {/* Stats Bar */}
+      <footer className="w-full flex justify-center gap-8 py-6 border-t border-white/10 bg-deep-navy/80">
+        <div className="text-center">
+          <div className="text-lg font-bold">{masterGoals.length}</div>
+          <div className="text-xs text-glass-white/60">총 목표</div>
+        </div>
+        <div className="text-center">
+          <div className="text-lg font-bold">{masterGoals.reduce((acc, g) => acc + g.subGoals.length, 0)}</div>
+          <div className="text-xs text-glass-white/60">총 하위 목표</div>
+        </div>
+        <div className="text-center">
+          <div className="text-lg font-bold">{Math.round(masterGoals.reduce((acc, g) => acc + g.progress, 0) / masterGoals.length)}%</div>
+          <div className="text-xs text-glass-white/60">평균 진행률</div>
+        </div>
+      </footer>
 
       {/* Goal Editor Modal */}
       <GoalEditor

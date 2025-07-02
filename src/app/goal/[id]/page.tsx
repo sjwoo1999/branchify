@@ -86,28 +86,30 @@ export default async function GoalDetailPage({ params }: PageProps) {
   if (!masterGoal) return notFound();
 
   return (
-    <div className="min-h-screen bg-deep-navy text-glass-white">
+    <div className="min-h-screen flex flex-col bg-deep-navy text-glass-white">
       {/* Header with back button */}
-      <header className="relative z-10 p-6">
-        <div className="max-w-5xl mx-auto">
-          <Link 
-            href="/" 
-            className="inline-flex items-center gap-2 text-neon-cyan hover:text-neon-purple transition-colors mb-6"
-          >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-            </svg>
-            홈으로 돌아가기
-          </Link>
-        </div>
+      <header className="w-full flex items-center px-8 py-6">
+        <Link 
+          href="/" 
+          className="inline-flex items-center gap-2 text-neon-cyan hover:text-neon-purple transition-colors"
+        >
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+          </svg>
+          홈
+        </Link>
       </header>
-
       {/* Main Content */}
-      <div className="max-w-5xl mx-auto py-12 px-4">
-        <h2 className="text-3xl font-bold mb-4 text-white drop-shadow-lg">{masterGoal.title}</h2>
-        <p className="text-lg text-white/80 mb-8">{masterGoal.description}</p>
-        <GoalNetworkClient subGoals={masterGoal.subGoals} />
-      </div>
+      <main className="flex-1 flex flex-col items-center justify-center gap-6 px-4">
+        <h2 className="text-2xl font-bold text-white mb-1 text-center">{masterGoal.title}</h2>
+        <div className="w-full max-w-md h-2 bg-white/10 rounded mb-2">
+          <div className="h-2 bg-neon-cyan rounded" style={{width: `${masterGoal.progress}%`}} />
+        </div>
+        <p className="text-base text-white/70 text-center max-w-lg mb-2">{masterGoal.description}</p>
+        <div className="w-full max-w-2xl">
+          <GoalNetworkClient subGoals={masterGoal.subGoals} />
+        </div>
+      </main>
     </div>
   );
 }
