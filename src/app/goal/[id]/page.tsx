@@ -1,114 +1,372 @@
-import React from 'react';
-import { notFound } from 'next/navigation';
+"use client";
+import React, { useRef, useLayoutEffect, useState } from 'react';
 import Link from 'next/link';
-import { MasterGoal } from '@/types';
-import GoalNetworkClient from '@/features/goal/GoalNetworkClient';
 
-// 임시 마스터 목표 데이터 (실제 프로젝트에서는 API/DB에서 가져옴)
-const masterGoals: MasterGoal[] = [
+// 임시 데이터 (실제 프로젝트에서는 API/DB에서 가져옴)
+const goals = [
   {
-    id: '1',
-    title: '개발자 성장하기',
-    description: '프론트엔드 개발 실력을 향상시키고 새로운 기술을 습득한다',
-    progress: 65,
-    color: 'purple',
-    tags: ['개발', '성장', '프론트엔드'],
-    subGoals: [
+    "title": "개발자로 성장하기",
+    "description": "프론트엔드부터 AI까지 전방위적으로 성장하며 포트폴리오 완성",
+    "tags": ["개발", "프론트엔드", "AI", "커리어성장"],
+    "progress": 45,
+    "subGoals": [
       {
-        id: '2',
-        title: 'React 마스터하기',
-        description: 'React의 고급 기능들을 학습하고 실제 프로젝트에 적용한다',
-        progress: 80,
-        color: 'cyan',
-        tags: ['React', 'JavaScript', '프론트엔드'],
+        "title": "React & Next.js 완전 마스터하기",
+        "progress": 60,
+        "tags": ["React", "Next", "UIUX"],
+        "description": "컴포넌트 설계, Tailwind, SSR/CSR, 접근성 등 심화"
       },
       {
-        id: '3',
-        title: 'TypeScript 학습',
-        description: 'TypeScript의 타입 시스템을 깊이 있게 학습한다',
-        progress: 45,
-        color: 'pink',
-        tags: ['TypeScript', '타입', '개발'],
+        "title": "TypeScript 심화",
+        "progress": 30,
+        "tags": ["TypeScript", "안정성"],
+        "description": "타입 선언, 제네릭, 타입 유틸리티, 실전 프로젝트 적용"
       },
       {
-        id: '4',
-        title: '건강한 생활습관 만들기',
-        description: '규칙적인 운동과 건강한 식습관을 형성한다',
-        progress: 30,
-        color: 'yellow',
-        tags: ['건강', '운동', '생활습관'],
+        "title": "AI 서비스 연동 및 실험",
+        "progress": 10,
+        "tags": ["AI", "OpenAI", "실험"],
+        "description": "GPT, Vision API, Emotion API 등을 통한 인터랙티브 서비스 실험"
       },
-    ],
+      {
+        "title": "개인 포트폴리오 웹사이트 리뉴얼",
+        "progress": 80,
+        "tags": ["포트폴리오", "디자인", "자기표현"],
+        "description": "모바일/웹 반응형, 애니메이션, 글래스모피즘 스타일 통합"
+      }
+    ]
   },
   {
-    id: '5',
-    title: 'AI 프로젝트 완성하기',
-    description: 'AI 모델을 개발하고 실제 서비스에 배포한다',
-    progress: 40,
-    color: 'cyan',
-    tags: ['AI', '딥러닝', '서비스'],
-    subGoals: [
+    "title": "멀티모달 감정 회고 서비스 완성하기",
+    "description": "멀티모달 감정 인식 기술을 적용한 개인 성장 피드백 서비스 개발",
+    "tags": ["AI", "감정인식", "회고", "프로젝트"],
+    "progress": 25,
+    "subGoals": [
       {
-        id: '6',
-        title: '데이터 수집',
-        description: 'AI 학습을 위한 데이터셋을 구축한다',
-        progress: 60,
-        color: 'purple',
-        tags: ['데이터', '수집'],
+        "title": "표정 기반 감정 분석 모듈 구현",
+        "progress": 40,
+        "tags": ["Vision", "ML"],
+        "description": "Mediapipe, MTCNN, FACS 기반 표정 감정 모델 적용"
       },
       {
-        id: '7',
-        title: '모델 학습',
-        description: '딥러닝 모델을 설계하고 학습시킨다',
-        progress: 30,
-        color: 'pink',
-        tags: ['딥러닝', '모델'],
+        "title": "음성 기반 감정 분석",
+        "progress": 10,
+        "tags": ["Voice", "Signal"],
+        "description": "음성 톤/스펙트럼 기반 실험"
       },
       {
-        id: '8',
-        title: '서비스 배포',
-        description: '학습된 모델을 실제 서비스에 배포한다',
-        progress: 10,
-        color: 'yellow',
-        tags: ['배포', '서비스'],
+        "title": "텍스트 기반 심리 해석",
+        "progress": 20,
+        "tags": ["NLP", "심리학"],
+        "description": "VAD 모델, BERT 기반 감정 분석"
       },
-    ],
+      {
+        "title": "PDF 개인 리포트 자동화",
+        "progress": 30,
+        "tags": ["리포트", "자동화"],
+        "description": "세션 기록, PDF/HTML 리포트 자동 생성"
+      }
+    ]
   },
+  {
+    "title": "개인 루틴 & 콘텐츠 제작 루틴 확립",
+    "description": "일상과 창작을 동시에 최적화하는 루틴 설계 및 실험",
+    "tags": ["루틴", "콘텐츠", "생산성"],
+    "progress": 55,
+    "subGoals": [
+      {
+        "title": "아침 기상 루틴 확립",
+        "progress": 70,
+        "tags": ["건강", "습관"],
+        "description": "기상, 스트레칭, 저널 작성, 가벼운 운동 포함"
+      },
+      {
+        "title": "주간 유튜브 쇼츠/리일스 제작 루틴",
+        "progress": 50,
+        "tags": ["영상", "SNS"],
+        "description": "촬영 → 컷 편집 → 자막 → 썸네일 → 업로드 플로우 정립"
+      },
+      {
+        "title": "주간 회고 & 다음 주 계획",
+        "progress": 60,
+        "tags": ["회고", "계획"],
+        "description": "Notion 기반 주간 리뷰 및 목표 재설계"
+      },
+      {
+        "title": "스터디윗미/라이브 제작 루틴",
+        "progress": 40,
+        "tags": ["라이브", "소통"],
+        "description": "실시간 작업 방송, 시청자 참여형 콘텐츠 기획"
+      }
+    ]
+  },
+  {
+    "title": "영어 실력 한 단계 올리기",
+    "description": "실제 업무 및 글로벌 협업에 필요한 영어 능력 강화",
+    "tags": ["영어", "커뮤니케이션", "글로벌"],
+    "progress": 35,
+    "subGoals": [
+      {
+        "title": "비즈니스 이메일 작성 훈련",
+        "progress": 60,
+        "tags": ["Writing"],
+        "description": "클라이언트, 파트너, 내부 커뮤니케이션용"
+      },
+      {
+        "title": "실전 회화 스터디 참여",
+        "progress": 20,
+        "tags": ["Speaking"],
+        "description": "주 2회 네이티브 그룹 참여"
+      },
+      {
+        "title": "기술/AI 관련 영어 문서 독해",
+        "progress": 30,
+        "tags": ["Reading"],
+        "description": "논문, White paper, 개발 문서 독해"
+      },
+      {
+        "title": "발표 및 피치덱 발표 연습",
+        "progress": 10,
+        "tags": ["Presentation"],
+        "description": "IR 피치덱, 기술 발표, Q&A 대응 훈련"
+      }
+    ]
+  },
+  {
+    "title": "나만의 디자인 시스템 구축",
+    "description": "개인 브랜드 아이덴티티와 UX 통일성을 위한 디자인 시스템 설계",
+    "tags": ["디자인", "시스템", "브랜딩"],
+    "progress": 20,
+    "subGoals": [
+      {
+        "title": "색상 팔레트 및 컴포넌트 가이드",
+        "progress": 30,
+        "tags": ["컬러", "UI"],
+        "description": "주 컬러(#F76241 등) 및 서브 컬러 체계화"
+      },
+      {
+        "title": "타이포그래피 및 스케일 설계",
+        "progress": 15,
+        "tags": ["폰트", "가이드"],
+        "description": "반응형 환경 고려한 계층화 설계"
+      },
+      {
+        "title": "디자인 토큰 및 변수화",
+        "progress": 10,
+        "tags": ["Token", "시스템화"],
+        "description": "Tailwind, CSS 변수 기반"
+      },
+      {
+        "title": "Figma 라이브러리 정리",
+        "progress": 25,
+        "tags": ["Figma"],
+        "description": "컴포넌트/아이콘/모듈화 정리 및 공유"
+      }
+    ]
+  }
 ];
 
 interface PageProps {
-  params: Promise<{ id: string }>;
+  params: { id: string };
 }
 
-export default async function GoalDetailPage({ params }: PageProps) {
-  const { id } = await params;
-  const masterGoal = masterGoals.find(g => g.id === id);
-  if (!masterGoal) return notFound();
+export default function GoalDetailPage({ params }: PageProps) {
+  const idx = Number(params.id);
+  const goal = goals[idx];
+  if (!goal) return <div className="text-center py-20 text-white">존재하지 않는 목표입니다.</div>;
+
+  // 랜덤 배치 + 충돌 최소화
+  const subCount = goal.subGoals.length;
+  const mainRef = useRef<HTMLDivElement>(null);
+  const subRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [positions, setPositions] = useState<{main: {x: number, y: number}, subs: {x: number, y: number}[]}>({main: {x:0, y:0}, subs: []});
+  const [randomSeed] = useState(() => Math.floor(Math.random() * 1000000));
+
+  // 랜덤 함수 (seeded)
+  function seededRandom(seed: number) {
+    let x = Math.sin(seed++) * 10000;
+    return x - Math.floor(x);
+  }
+
+  // 랜덤 배치 좌표 생성 (충돌 최소화)
+  function generateRandomPositions(center: {x: number, y: number}, radius: number, count: number, nodeSize: number, seed: number) {
+    const positions: {x: number, y: number}[] = [];
+    for (let i = 0; i < count; i++) {
+      let placed = false, attempt = 0;
+      while (!placed && attempt < 100) {
+        const angle = 2 * Math.PI * seededRandom(seed + i * 100 + attempt * 13);
+        const r = radius * (0.5 + 0.5 * seededRandom(seed + i * 200 + attempt * 17));
+        const x = center.x + r * Math.cos(angle);
+        const y = center.y + r * Math.sin(angle);
+        let collision = false;
+        for (const pos of positions) {
+          if (Math.hypot(pos.x - x, pos.y - y) < nodeSize * 1.2) {
+            collision = true; break;
+          }
+        }
+        if (!collision) { positions.push({x, y}); placed = true; }
+        attempt++;
+      }
+      if (!placed) {
+        positions.push({
+          x: center.x + radius * Math.cos((2 * Math.PI / count) * i),
+          y: center.y + radius * Math.sin((2 * Math.PI / count) * i)
+        });
+      }
+    }
+    return positions;
+  }
+
+  useLayoutEffect(() => {
+    if (!mainRef.current || !containerRef.current) return;
+    const containerRect = containerRef.current.getBoundingClientRect();
+    const mainRect = mainRef.current.getBoundingClientRect();
+    const mainCenter = {
+      x: mainRect.left - containerRect.left + mainRect.width / 2,
+      y: mainRect.top - containerRect.top + mainRect.height / 2,
+    };
+    const width = containerRect.width;
+    const height = containerRect.height;
+    const radius = Math.min(width, height) * 0.32;
+    const nodeSize = 128;
+    const subs = generateRandomPositions(mainCenter, radius, subCount, nodeSize, randomSeed);
+    setPositions({main: mainCenter, subs});
+  }, [goal.subGoals.length, randomSeed]);
+
+  React.useEffect(() => {
+    const handleResize = () => {
+      if (!mainRef.current || !containerRef.current) return;
+      const containerRect = containerRef.current.getBoundingClientRect();
+      const mainRect = mainRef.current.getBoundingClientRect();
+      const mainCenter = {
+        x: mainRect.left - containerRect.left + mainRect.width / 2,
+        y: mainRect.top - containerRect.top + mainRect.height / 2,
+      };
+      const width = containerRect.width;
+      const height = containerRect.height;
+      const radius = Math.min(width, height) * 0.32;
+      const nodeSize = 128;
+      const subs = generateRandomPositions(mainCenter, radius, subCount, nodeSize, randomSeed);
+      setPositions({main: mainCenter, subs});
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, [goal.subGoals.length, randomSeed]);
 
   return (
     <div className="min-h-screen flex flex-col bg-deep-navy text-glass-white">
-      {/* Header with back button */}
       <header className="w-full flex items-center px-8 py-6">
-        <Link 
-          href="/" 
-          className="inline-flex items-center gap-2 text-neon-cyan hover:text-neon-purple transition-colors"
-        >
+        <Link href="/" className="inline-flex items-center gap-2 text-neon-cyan hover:text-neon-purple transition-colors">
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
           </svg>
           홈
         </Link>
       </header>
-      {/* Main Content */}
-      <main className="flex-1 flex flex-col items-center justify-center gap-6 px-4">
-        <h2 className="text-2xl font-bold text-white mb-1 text-center">{masterGoal.title}</h2>
-        <div className="w-full max-w-md h-2 bg-white/10 rounded mb-2">
-          <div className="h-2 bg-neon-cyan rounded" style={{width: `${masterGoal.progress}%`}} />
+      <main ref={containerRef} className="flex-1 flex flex-col items-center justify-center gap-12 px-4 overflow-hidden relative">
+        {/* 네온 곡선 SVG 오버레이 */}
+        <svg className="pointer-events-none absolute left-0 top-0 w-full h-full z-10" width="100%" height="100%"
+          viewBox={`0 0 ${containerRef.current?.offsetWidth || 1920} ${containerRef.current?.offsetHeight || 1080}`}
+          style={{maxWidth: '100vw', maxHeight: '100vh'}}>
+          <defs>
+            <filter id="neuron-glow" x="-30%" y="-30%" width="160%" height="160%">
+              <feDropShadow dx="0" dy="0" stdDeviation="6" floodColor="#00fff7" floodOpacity="0.8" />
+              <feDropShadow dx="0" dy="0" stdDeviation="12" floodColor="#00fff7" floodOpacity="0.4" />
+              <feDropShadow dx="0" dy="0" stdDeviation="20" floodColor="#00fff7" floodOpacity="0.2" />
+            </filter>
+            <filter id="synapse-glow" x="-30%" y="-30%" width="160%" height="160%">
+              <feDropShadow dx="0" dy="0" stdDeviation="3" floodColor="#ff00ff" floodOpacity="0.6" />
+              <feDropShadow dx="0" dy="0" stdDeviation="6" floodColor="#ff00ff" floodOpacity="0.3" />
+            </filter>
+          </defs>
+          {positions.subs.map((sub, idx) => {
+            // 곡선 제어점: 메인과 서브 중간에서 y를 조금 올림
+            const cpx = (positions.main.x + sub.x) / 2;
+            const cpy = (positions.main.y + sub.y) / 2 - 80;
+            return (
+              <g key={idx}>
+                <path
+                  d={`M ${positions.main.x} ${positions.main.y+60} Q ${cpx} ${cpy} ${sub.x} ${sub.y-60}`}
+                  stroke="#00fff7"
+                  strokeWidth="3"
+                  fill="none"
+                  filter="url(#neuron-glow)"
+                  strokeLinecap="round"
+                  opacity="0.8"
+                />
+                {/* 시냅스 점 */}
+                <circle
+                  cx={cpx}
+                  cy={cpy}
+                  r="5"
+                  fill="#ff00ff"
+                  filter="url(#synapse-glow)"
+                  opacity="0.7"
+                />
+              </g>
+            );
+          })}
+        </svg>
+        {/* 메인 목표 뉴런 노드 */}
+        <div ref={mainRef} className="absolute left-1/2 top-32 -translate-x-1/2 z-20 group mb-2">
+          <div className="w-56 h-56 rounded-full bg-gradient-to-br from-glass/80 to-glass/40 border-2 border-neon-cyan/50 shadow-lg backdrop-blur-sm flex flex-col items-center justify-center p-6 hover:scale-105 transition-all duration-300 group-hover:border-neon-cyan">
+            <h2 className="text-xl font-bold mb-2 text-white group-hover:text-neon-cyan transition-colors text-center truncate max-w-full">{goal.title}</h2>
+            <div className="w-full max-w-40 mx-auto mb-2">
+              <div className="w-full h-2 bg-white/10 rounded-full overflow-hidden">
+                <div className="h-2 bg-gradient-to-r from-neon-cyan to-neon-purple rounded-full transition-all duration-500" style={{width: `${goal.progress}%`}} />
+              </div>
+              <div className="text-center mt-1">
+                <span className="text-neon-cyan text-sm font-medium">{goal.progress}%</span>
+              </div>
+            </div>
+            <div className="flex gap-2 mb-2 flex-wrap justify-center">
+              {goal.tags.slice(0,3).map(tag => (
+                <span key={tag} className="text-xs border border-neon-cyan/50 rounded-full px-2 py-1 text-neon-cyan bg-white/5 backdrop-blur-sm">{tag}</span>
+              ))}
+              {goal.tags.length > 3 && (
+                <span className="text-xs border border-neon-cyan/30 rounded-full px-2 py-1 text-neon-cyan/60 bg-white/5 backdrop-blur-sm">+{goal.tags.length-3}</span>
+              )}
+            </div>
+            <p className="text-xs text-white/70 text-center max-w-[180px] mx-auto line-clamp-2 overflow-hidden" title={goal.description}>{goal.description}</p>
+          </div>
+          <div className="absolute inset-0 rounded-full bg-neon-cyan/20 blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
         </div>
-        <p className="text-base text-white/70 text-center max-w-lg mb-2">{masterGoal.description}</p>
-        <div className="w-full max-w-2xl">
-          <GoalNetworkClient subGoals={masterGoal.subGoals} />
-        </div>
+        {/* 서브골 뉴런 노드들 (반원 위에 분산) */}
+        {goal.subGoals.map((sub, idx) => (
+          <div
+            key={sub.title}
+            ref={el => { subRefs.current[idx] = el; }}
+            className="absolute z-20 group"
+            style={{
+              left: positions.subs[idx]?.x ? positions.subs[idx].x - 128 : '50%',
+              top: positions.subs[idx]?.y ? positions.subs[idx].y - 128 : '70%',
+              width: 256,
+              height: 256,
+              transition: 'left 0.5s, top 0.5s',
+            }}
+          >
+            <div className="w-32 h-32 rounded-full bg-gradient-to-br from-glass/80 to-glass/40 border-2 border-neon-cyan/50 shadow-lg backdrop-blur-sm flex flex-col items-center justify-center p-4 hover:scale-105 transition-all duration-300 group-hover:border-neon-cyan">
+              <div className={`w-8 h-8 flex items-center justify-center rounded-full mb-2
+                ${sub.progress === 100 ? 'bg-neon-cyan text-white' : sub.progress > 0 ? 'border-2 border-neon-cyan text-neon-cyan' : 'border-2 border-white/30 text-white/50'}
+              `}>{idx + 1}</div>
+              <div className="font-semibold text-white mb-1 text-center truncate max-w-full" title={sub.title}>{sub.title}</div>
+              <div className="w-full h-2 bg-white/10 rounded mb-2">
+                <div className="h-2 bg-neon-cyan rounded" style={{width: `${sub.progress}%`}} />
+              </div>
+              <div className="flex gap-1 mb-1 flex-wrap justify-center">
+                {sub.tags.slice(0,2).map(tag => (
+                  <span key={tag} className="text-xs border border-neon-cyan/50 rounded-full px-2 py-1 text-neon-cyan bg-white/5 backdrop-blur-sm">{tag}</span>
+                ))}
+                {sub.tags.length > 2 && (
+                  <span className="text-xs border border-neon-cyan/30 rounded-full px-2 py-1 text-neon-cyan/60 bg-white/5 backdrop-blur-sm">+{sub.tags.length-2}</span>
+                )}
+              </div>
+              <div className="text-xs text-white/60 text-center line-clamp-1 max-w-[100px] mx-auto overflow-hidden" title={sub.description}>{sub.description}</div>
+            </div>
+            <div className="absolute inset-0 rounded-full bg-neon-cyan/20 blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+          </div>
+        ))}
       </main>
     </div>
   );
