@@ -1,5 +1,5 @@
 "use client";
-import React, { useRef, useLayoutEffect, useState } from 'react';
+import React, { useRef, useLayoutEffect, useState, use as usePromise } from 'react';
 import Link from 'next/link';
 
 // 임시 데이터 (실제 프로젝트에서는 API/DB에서 가져옴)
@@ -171,16 +171,20 @@ interface PageProps {
 }
 
 export default function GoalDetailPage({ params }: PageProps) {
-  const idx = Number(params.id);
+  // Next.js 15+ params: Promise or object
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const unwrappedParams = (typeof (params as any)?.then === 'function') ? (require('react').use(params) as { id: string }) : params;
+  const { id } = unwrappedParams;
+  const idx = Number(id);
   const goal = goals[idx];
   if (!goal) return <div className="text-center py-20 text-white">존재하지 않는 목표입니다.</div>;
 
-  // 랜덤 배치 + 충돌 최소화
+  // arc + 랜덤 오프셋 배치
   const subCount = goal.subGoals.length;
   const mainRef = useRef<HTMLDivElement>(null);
   const subRefs = useRef<(HTMLDivElement | null)[]>([]);
   const containerRef = useRef<HTMLDivElement>(null);
-  const [positions, setPositions] = useState<{main: {x: number, y: number}, subs: {x: number, y: number}[]}>({main: {x:0, y:0}, subs: []});
+  const [positions, setPositions] = useState<{main: {x: number, y: number}, subs: {x: number, y: number, size: number, idx: number, angle?: number, r?: number}[]}>({main: {x:0, y:0}, subs: []});
   const [randomSeed] = useState(() => Math.floor(Math.random() * 1000000));
 
   // 랜덤 함수 (seeded)
@@ -189,70 +193,94 @@ export default function GoalDetailPage({ params }: PageProps) {
     return x - Math.floor(x);
   }
 
-  // 랜덤 배치 좌표 생성 (충돌 최소화)
-  function generateRandomPositions(center: {x: number, y: number}, radius: number, count: number, nodeSize: number, seed: number) {
-    const positions: {x: number, y: number}[] = [];
-    for (let i = 0; i < count; i++) {
-      let placed = false, attempt = 0;
-      while (!placed && attempt < 100) {
-        const angle = 2 * Math.PI * seededRandom(seed + i * 100 + attempt * 13);
-        const r = radius * (0.5 + 0.5 * seededRandom(seed + i * 200 + attempt * 17));
-        const x = center.x + r * Math.cos(angle);
-        const y = center.y + r * Math.sin(angle);
-        let collision = false;
-        for (const pos of positions) {
-          if (Math.hypot(pos.x - x, pos.y - y) < nodeSize * 1.2) {
-            collision = true; break;
-          }
+  // 항상 예쁘고 유기적인 신경망: 2~5개는 프리셋 각도+랜덤, 6개 이상은 sunflower+랜덤+충돌회피
+  function generateOrganicNeuronPositions(center: {x: number, y: number}, baseRadius: number, subs: any[], seed: number) {
+    const width = window.innerWidth || 1920;
+    const height = window.innerHeight || 1080;
+    const margin = 32;
+    const goldenAngle = Math.PI * (3 - Math.sqrt(5));
+    const presetAngles = {
+      2: [Math.PI/2, -Math.PI/2],
+      3: [0, 2*Math.PI/3, 4*Math.PI/3],
+      4: [0, Math.PI/2, Math.PI, 3*Math.PI/2],
+      5: [0, 2*Math.PI/5, 4*Math.PI/5, 6*Math.PI/5, 8*Math.PI/5]
+    };
+    const sorted = [...subs].map((s, i) => ({...s, _idx: i})).sort((a, b) => b.progress - a.progress || a._idx - b._idx);
+    const getNodeSize = (progress: number) => 96 + 48 * (progress/100);
+    const positions: {x: number, y: number, size: number, idx: number, angle?: number, r?: number}[] = [];
+    // 중심 노드: 화면 중앙(혹은 약간 위)
+    const main = sorted[0];
+    const mainSize = getNodeSize(main.progress);
+    let x0 = center.x;
+    let y0 = center.y - baseRadius * 0.18;
+    x0 = Math.max(mainSize/2+margin, Math.min(x0, width-mainSize/2-margin));
+    y0 = Math.max(mainSize/2+margin, Math.min(y0, height-mainSize/2-margin));
+    positions.push({x: x0, y: y0, size: mainSize, idx: main._idx, angle: -Math.PI/2, r: baseRadius*0.18});
+    // 나머지 노드
+    const rest = sorted.slice(1);
+    const N = subs.length;
+    for (let i = 0; i < rest.length; i++) {
+      let tries = 0;
+      let pos;
+      const node = rest[i];
+      const size = getNodeSize(node.progress);
+      while (tries < 24) {
+        let angle, r;
+        if (N <= 5) {
+          // 프리셋 각도 인덱싱: i=0~N-2, 중심 노드는 -90도(위쪽)
+          angle = presetAngles[N as unknown as keyof typeof presetAngles][i];
+          // 랜덤성 완전 제거, 충돌 시 반지름만 점진적으로 최대 3배까지 확장
+          r = baseRadius * (1.2 + tries * 0.12);
+        } else {
+          // sunflower + 랜덤(여기는 유지, 6개 이상은 겹침 거의 없음)
+          angle = (i+1) * goldenAngle + Math.PI/32 * (seededRandom(seed + i * 10 + tries*100) - 0.5);
+          r = baseRadius * Math.sqrt((i+1)/N) * (0.85 + 0.3 * seededRandom(seed + i * 100 + tries*50)) * (1 + tries * 0.06);
         }
-        if (!collision) { positions.push({x, y}); placed = true; }
-        attempt++;
+        let x = center.x + r * Math.cos(angle);
+        let y = center.y + r * Math.sin(angle);
+        // clamp
+        x = Math.max(size/2+margin, Math.min(x, width-size/2-margin));
+        y = Math.max(size/2+margin, Math.min(y, height-size/2-margin));
+        pos = {x, y, size, idx: node._idx, angle, r};
+        // 중심 노드와의 각도 최소값(30도) 보장
+        const mainAngle = -Math.PI/2;
+        if (Math.abs(angle-mainAngle) < Math.PI/7) { tries++; continue; }
+        // 중심 노드와의 거리 최소값 보장
+        if (Math.hypot(x-x0, y-y0) < (mainSize+size)/2+margin*1.2) { tries++; continue; }
+        // 겹침 방지(모든 기존 노드와, 거리 체크 강화)
+        if (positions.every(p => Math.hypot(p.x-x, p.y-y) > (p.size+size)/2+margin*1.2)) break;
+        tries++;
       }
-      if (!placed) {
-        positions.push({
-          x: center.x + radius * Math.cos((2 * Math.PI / count) * i),
-          y: center.y + radius * Math.sin((2 * Math.PI / count) * i)
-        });
-      }
+      positions.push(pos!);
     }
-    return positions;
+    return positions.sort((a, b) => a.idx - b.idx);
   }
 
   useLayoutEffect(() => {
     if (!mainRef.current || !containerRef.current) return;
     const containerRect = containerRef.current.getBoundingClientRect();
-    const mainRect = mainRef.current.getBoundingClientRect();
-    const mainCenter = {
-      x: mainRect.left - containerRect.left + mainRect.width / 2,
-      y: mainRect.top - containerRect.top + mainRect.height / 2,
-    };
-    const width = containerRect.width;
-    const height = containerRect.height;
-    const radius = Math.min(width, height) * 0.32;
-    const nodeSize = 128;
-    const subs = generateRandomPositions(mainCenter, radius, subCount, nodeSize, randomSeed);
+    const centerX = containerRect.width / 2;
+    const centerY = containerRect.height / 2;
+    const mainCenter = { x: centerX, y: centerY };
+    const baseRadius = Math.min(containerRect.width, containerRect.height) * 0.28;
+    const subs = generateOrganicNeuronPositions(mainCenter, baseRadius, goal.subGoals, randomSeed);
     setPositions({main: mainCenter, subs});
-  }, [goal.subGoals.length, randomSeed]);
+  }, [goal.subGoals, randomSeed]);
 
   React.useEffect(() => {
     const handleResize = () => {
       if (!mainRef.current || !containerRef.current) return;
       const containerRect = containerRef.current.getBoundingClientRect();
-      const mainRect = mainRef.current.getBoundingClientRect();
-      const mainCenter = {
-        x: mainRect.left - containerRect.left + mainRect.width / 2,
-        y: mainRect.top - containerRect.top + mainRect.height / 2,
-      };
-      const width = containerRect.width;
-      const height = containerRect.height;
-      const radius = Math.min(width, height) * 0.32;
-      const nodeSize = 128;
-      const subs = generateRandomPositions(mainCenter, radius, subCount, nodeSize, randomSeed);
+      const centerX = containerRect.width / 2;
+      const centerY = containerRect.height / 2;
+      const mainCenter = { x: centerX, y: centerY };
+      const baseRadius = Math.min(containerRect.width, containerRect.height) * 0.28;
+      const subs = generateOrganicNeuronPositions(mainCenter, baseRadius, goal.subGoals, randomSeed);
       setPositions({main: mainCenter, subs});
     };
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
-  }, [goal.subGoals.length, randomSeed]);
+  }, [goal.subGoals, randomSeed]);
 
   return (
     <div className="min-h-screen flex flex-col bg-deep-navy text-glass-white">
@@ -281,13 +309,18 @@ export default function GoalDetailPage({ params }: PageProps) {
             </filter>
           </defs>
           {positions.subs.map((sub, idx) => {
-            // 곡선 제어점: 메인과 서브 중간에서 y를 조금 올림
-            const cpx = (positions.main.x + sub.x) / 2;
-            const cpy = (positions.main.y + sub.y) / 2 - 80;
+            // 곡선 제어점: 각도 기반으로 자연스럽게(중간점 + 각도 방향으로 오프셋)
+            const main = positions.main;
+            const angle = sub.angle ?? 0;
+            const midX = (main.x + sub.x) / 2;
+            const midY = (main.y + sub.y) / 2;
+            const offset = 60 + 30 * (Math.random() - 0.5);
+            const cpx = midX + offset * Math.cos(angle - Math.PI/2);
+            const cpy = midY + offset * Math.sin(angle - Math.PI/2);
             return (
               <g key={idx}>
                 <path
-                  d={`M ${positions.main.x} ${positions.main.y+60} Q ${cpx} ${cpy} ${sub.x} ${sub.y-60}`}
+                  d={`M ${main.x} ${main.y+60} Q ${cpx} ${cpy} ${sub.x} ${sub.y-60}`}
                   stroke="#00fff7"
                   strokeWidth="3"
                   fill="none"
@@ -339,14 +372,14 @@ export default function GoalDetailPage({ params }: PageProps) {
             ref={el => { subRefs.current[idx] = el; }}
             className="absolute z-20 group"
             style={{
-              left: positions.subs[idx]?.x ? positions.subs[idx].x - 128 : '50%',
-              top: positions.subs[idx]?.y ? positions.subs[idx].y - 128 : '70%',
-              width: 256,
-              height: 256,
-              transition: 'left 0.5s, top 0.5s',
+              left: positions.subs[idx]?.x ? positions.subs[idx].x - positions.subs[idx].size/2 : '50%',
+              top: positions.subs[idx]?.y ? positions.subs[idx].y - positions.subs[idx].size/2 : '70%',
+              width: positions.subs[idx]?.size || 128,
+              height: positions.subs[idx]?.size || 128,
+              transition: 'left 0.5s, top 0.5s, width 0.5s, height 0.5s',
             }}
           >
-            <div className="w-32 h-32 rounded-full bg-gradient-to-br from-glass/80 to-glass/40 border-2 border-neon-cyan/50 shadow-lg backdrop-blur-sm flex flex-col items-center justify-center p-4 hover:scale-105 transition-all duration-300 group-hover:border-neon-cyan">
+            <div className="w-full h-full rounded-full bg-gradient-to-br from-glass/80 to-glass/40 border-2 border-neon-cyan/50 shadow-lg backdrop-blur-sm flex flex-col items-center justify-center p-4 hover:scale-105 transition-all duration-300 group-hover:border-neon-cyan">
               <div className={`w-8 h-8 flex items-center justify-center rounded-full mb-2
                 ${sub.progress === 100 ? 'bg-neon-cyan text-white' : sub.progress > 0 ? 'border-2 border-neon-cyan text-neon-cyan' : 'border-2 border-white/30 text-white/50'}
               `}>{idx + 1}</div>
@@ -364,7 +397,6 @@ export default function GoalDetailPage({ params }: PageProps) {
               </div>
               <div className="text-xs text-white/60 text-center line-clamp-1 max-w-[100px] mx-auto overflow-hidden" title={sub.description}>{sub.description}</div>
             </div>
-            <div className="absolute inset-0 rounded-full bg-neon-cyan/20 blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
           </div>
         ))}
       </main>
