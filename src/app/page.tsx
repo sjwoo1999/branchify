@@ -496,7 +496,7 @@ export default function HomePage() {
                   <div className="absolute inset-0 rounded-full border border-neon-cyan/20 animate-ping"></div>
                 </div>
               </div>
-            </div>
+        </div>
           </Link>
         ))}
       </main>

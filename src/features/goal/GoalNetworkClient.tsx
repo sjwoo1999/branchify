@@ -3,19 +3,22 @@ import { SubGoal } from '@/types';
 
 export default function GoalNetworkClient({ subGoals }: { subGoals: SubGoal[] }) {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
-      {subGoals.map((goal) => (
-        <div key={goal.id} className="rounded-xl bg-glass/60 p-4 flex flex-col items-start border border-white/10 shadow">
-          <div className="font-semibold text-white mb-1">{goal.title}</div>
-          <div className="w-full h-2 bg-white/10 rounded mb-2">
-            <div className="h-2 bg-neon-cyan rounded" style={{width: `${goal.progress}%`}} />
+    <div className="flex items-center justify-center gap-4 w-full overflow-x-auto py-4">
+      {subGoals.map((goal, idx) => (
+        <div key={goal.id} className="flex items-center">
+          {/* Step Circle */}
+          <div className={`flex flex-col items-center min-w-[100px]`}>
+            <div className={`w-10 h-10 flex items-center justify-center rounded-full
+              ${goal.progress === 100 ? 'bg-neon-cyan text-white' : goal.progress > 0 ? 'border-2 border-neon-cyan text-neon-cyan' : 'border-2 border-white/30 text-white/50'}
+            `}>
+              {idx + 1}
+            </div>
+            <div className="mt-2 text-xs text-center max-w-[80px] text-white/90">{goal.title}</div>
           </div>
-          <div className="flex gap-2 mb-1">
-            {goal.tags.slice(0,2).map(tag => (
-              <span key={tag} className="text-xs border border-neon-cyan rounded-full px-2 py-0.5 text-neon-cyan bg-white/5">{tag}</span>
-            ))}
-          </div>
-          <div className="text-xs text-white/60">{goal.description}</div>
+          {/* Connector */}
+          {idx < subGoals.length - 1 && (
+            <div className="w-8 h-1 bg-gradient-to-r from-neon-cyan to-white/10 mx-2 rounded-full" />
+          )}
         </div>
       ))}
     </div>
