@@ -106,4 +106,23 @@ export interface ApiResponse<T> {
   data?: T;
   error?: string;
   message?: string;
-} 
+}
+
+export type SubGoal = {
+  id: string;
+  title: string;
+  description: string;
+  progress: number;
+  tags: string[];
+  color: string;
+};
+
+export type MasterGoal = {
+  id: string;
+  title: string;
+  description: string;
+  progress: number;
+  tags: string[];
+  color: string;
+  subGoals: SubGoal[];
+}; 

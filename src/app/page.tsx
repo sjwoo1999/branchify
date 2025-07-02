@@ -10,64 +10,80 @@ import GoalCard from '@/features/goal/GoalCard';
 import GoalEditor from '@/features/goal/GoalEditor';
 import GlassCard from '@/components/GlassCard';
 import NeonButton from '@/components/NeonButton';
-import Goal3DMap from '@/features/goal/Goal3DMap';
+import GoalList from '@/features/goal/GoalList';
+import GoalSection from '@/features/goal/GoalSection';
+import Link from 'next/link';
+import MasterGoalCard from '@/features/goal/MasterGoalCard';
 
 // 샘플 데이터
-const sampleGoals: Goal[] = [
+const masterGoals = [
   {
     id: '1',
     title: '개발자 성장하기',
     description: '프론트엔드 개발 실력을 향상시키고 새로운 기술을 습득한다',
-    status: 'active',
-    priority: 'high',
-    createdAt: new Date('2024-01-01'),
-    updatedAt: new Date('2024-01-15'),
-    dueDate: new Date('2024-12-31'),
-    children: [],
     progress: 65,
     color: 'purple',
     tags: ['개발', '성장', '프론트엔드'],
+    subGoals: [
+      {
+        id: '2',
+        title: 'React 마스터하기',
+        description: 'React의 고급 기능들을 학습하고 실제 프로젝트에 적용한다',
+        progress: 80,
+        color: 'cyan',
+        tags: ['React', 'JavaScript', '프론트엔드'],
+      },
+      {
+        id: '3',
+        title: 'TypeScript 학습',
+        description: 'TypeScript의 타입 시스템을 깊이 있게 학습한다',
+        progress: 45,
+        color: 'pink',
+        tags: ['TypeScript', '타입', '개발'],
+      },
+      {
+        id: '4',
+        title: '건강한 생활습관 만들기',
+        description: '규칙적인 운동과 건강한 식습관을 형성한다',
+        progress: 30,
+        color: 'yellow',
+        tags: ['건강', '운동', '생활습관'],
+      },
+    ],
   },
   {
-    id: '2',
-    title: 'React 마스터하기',
-    description: 'React의 고급 기능들을 학습하고 실제 프로젝트에 적용한다',
-    status: 'active',
-    priority: 'high',
-    createdAt: new Date('2024-01-01'),
-    updatedAt: new Date('2024-01-15'),
-    parentId: '1',
-    children: [],
-    progress: 80,
+    id: '5',
+    title: 'AI 프로젝트 완성하기',
+    description: 'AI 모델을 개발하고 실제 서비스에 배포한다',
+    progress: 40,
     color: 'cyan',
-    tags: ['React', 'JavaScript', '프론트엔드'],
-  },
-  {
-    id: '3',
-    title: 'TypeScript 학습',
-    description: 'TypeScript의 타입 시스템을 깊이 있게 학습한다',
-    status: 'active',
-    priority: 'medium',
-    createdAt: new Date('2024-01-01'),
-    updatedAt: new Date('2024-01-15'),
-    parentId: '1',
-    children: [],
-    progress: 45,
-    color: 'pink',
-    tags: ['TypeScript', '타입', '개발'],
-  },
-  {
-    id: '4',
-    title: '건강한 생활습관 만들기',
-    description: '규칙적인 운동과 건강한 식습관을 형성한다',
-    status: 'active',
-    priority: 'medium',
-    createdAt: new Date('2024-01-01'),
-    updatedAt: new Date('2024-01-15'),
-    children: [],
-    progress: 30,
-    color: 'yellow',
-    tags: ['건강', '운동', '생활습관'],
+    tags: ['AI', '딥러닝', '서비스'],
+    subGoals: [
+      {
+        id: '6',
+        title: '데이터 수집',
+        description: 'AI 학습을 위한 데이터셋을 구축한다',
+        progress: 60,
+        color: 'purple',
+        tags: ['데이터', '수집'],
+      },
+      {
+        id: '7',
+        title: '모델 학습',
+        description: '딥러닝 모델을 설계하고 학습시킨다',
+        progress: 30,
+        color: 'pink',
+        tags: ['딥러닝', '모델'],
+      },
+      {
+        id: '8',
+        title: '서비스 배포',
+        description: '학습된 모델을 실제 서비스에 배포한다',
+        progress: 10,
+        color: 'yellow',
+        tags: ['배포', '서비스'],
+      },
+    ],
   },
 ];
 
@@ -82,7 +98,6 @@ export default function HomePage() {
   // const { routines, getTodayRoutines, getCompletedToday } = useRoutine();
 
   // 샘플 데이터 사용
-  const goals = sampleGoals;
   const loading = false;
   const error = null;
 
@@ -164,6 +179,14 @@ export default function HomePage() {
       {/* Main Content */}
       <main className="relative z-0">
         <div className="max-w-7xl mx-auto px-6 pb-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-10 py-10">
+            {masterGoals.map(goal => (
+              <Link key={goal.id} href={`/goal/${goal.id}`} className="block hover:scale-105 transition">
+                <MasterGoalCard goal={goal} />
+              </Link>
+            ))}
+          </div>
+
           {/* Quick Stats */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -172,33 +195,28 @@ export default function HomePage() {
             className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8"
           >
             <GlassCard className="text-center">
-              <div className="text-2xl font-bold text-neon-purple">{goals.length}</div>
+              <div className="text-2xl font-bold text-neon-purple">{masterGoals.length}</div>
               <div className="text-sm text-glass-white/70">총 목표</div>
             </GlassCard>
             <GlassCard className="text-center">
               <div className="text-2xl font-bold text-neon-cyan">
-                {goals.filter(g => g.status === 'completed').length}
+                {masterGoals.reduce((acc, goal) => acc + goal.subGoals.length, 0)}
               </div>
-              <div className="text-sm text-glass-white/70">완료</div>
+              <div className="text-sm text-glass-white/70">총 하위 목표</div>
             </GlassCard>
             <GlassCard className="text-center">
               <div className="text-2xl font-bold text-neon-pink">
-                {goals.filter(g => g.status === 'active').length}
+                {masterGoals.reduce((acc, goal) => acc + goal.subGoals.filter(g => g.status === 'active').length, 0)}
               </div>
               <div className="text-sm text-glass-white/70">진행중</div>
             </GlassCard>
             <GlassCard className="text-center">
               <div className="text-2xl font-bold text-electric-yellow">
-                {Math.round(goals.reduce((acc, g) => acc + g.progress, 0) / goals.length)}%
+                {Math.round(masterGoals.reduce((acc, goal) => acc + goal.subGoals.reduce((acc, g) => acc + g.progress, 0), 0) / masterGoals.reduce((acc, goal) => acc + goal.subGoals.length, 0))}
               </div>
               <div className="text-sm text-glass-white/70">평균 진행률</div>
             </GlassCard>
           </motion.div>
-
-          {/* 3D 네트워크 목표 맵 샘플 */}
-          <div className="mb-10">
-            <Goal3DMap goals={goals.slice(0, 4)} />
-          </div>
 
           {/* Today's Routines */}
           {todayRoutines.length > 0 && (
@@ -248,7 +266,7 @@ export default function HomePage() {
             {viewMode === 'map' ? (
               <div className="h-[600px] rounded-2xl overflow-hidden">
                 <GoalMap
-                  goals={goals}
+                  goals={masterGoals.map(goal => goal.subGoals).flat()}
                   onGoalClick={setSelectedGoal}
                   onGoalComplete={handleCompleteGoal}
                   onGoalEdit={openEditor}
@@ -258,7 +276,7 @@ export default function HomePage() {
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {goals.map((goal) => (
+                {masterGoals.map(goal => goal.subGoals).flat().map((goal) => (
                   <GoalCard
                     key={goal.id}
                     goal={goal}
