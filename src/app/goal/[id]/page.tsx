@@ -1,6 +1,7 @@
 "use client";
-import React, { useRef, useLayoutEffect, useState, use as usePromise } from 'react';
+import React, { useRef, useState, use as usePromise } from 'react';
 import Link from 'next/link';
+import { forceSimulation, forceManyBody, forceCenter, forceCollide, forceLink, forceX, forceY } from 'd3-force';
 
 // 임시 데이터 (실제 프로젝트에서는 API/DB에서 가져옴)
 const goals = [
@@ -184,103 +185,54 @@ export default function GoalDetailPage({ params }: PageProps) {
   const mainRef = useRef<HTMLDivElement>(null);
   const subRefs = useRef<(HTMLDivElement | null)[]>([]);
   const containerRef = useRef<HTMLDivElement>(null);
-  const [positions, setPositions] = useState<{main: {x: number, y: number}, subs: {x: number, y: number, size: number, idx: number, angle?: number, r?: number}[]}>({main: {x:0, y:0}, subs: []});
+  const [positions, setPositions] = useState<{main: {x: number, y: number}, subs: {x: number, y: number, size: number, idx: number}[]}>({main: {x:0, y:0}, subs: []});
   const [randomSeed] = useState(() => Math.floor(Math.random() * 1000000));
 
-  // 랜덤 함수 (seeded)
-  function seededRandom(seed: number) {
-    let x = Math.sin(seed++) * 10000;
-    return x - Math.floor(x);
-  }
-
-  // 항상 예쁘고 유기적인 신경망: 2~5개는 프리셋 각도+랜덤, 6개 이상은 sunflower+랜덤+충돌회피
-  function generateOrganicNeuronPositions(center: {x: number, y: number}, baseRadius: number, subs: any[], seed: number) {
-    const width = window.innerWidth || 1920;
-    const height = window.innerHeight || 1080;
-    const margin = 32;
-    const goldenAngle = Math.PI * (3 - Math.sqrt(5));
-    const presetAngles = {
-      2: [Math.PI/2, -Math.PI/2],
-      3: [0, 2*Math.PI/3, 4*Math.PI/3],
-      4: [0, Math.PI/2, Math.PI, 3*Math.PI/2],
-      5: [0, 2*Math.PI/5, 4*Math.PI/5, 6*Math.PI/5, 8*Math.PI/5]
-    };
-    const sorted = [...subs].map((s, i) => ({...s, _idx: i})).sort((a, b) => b.progress - a.progress || a._idx - b._idx);
-    const getNodeSize = (progress: number) => 96 + 48 * (progress/100);
-    const positions: {x: number, y: number, size: number, idx: number, angle?: number, r?: number}[] = [];
-    // 중심 노드: 화면 중앙(혹은 약간 위)
-    const main = sorted[0];
-    const mainSize = getNodeSize(main.progress);
-    let x0 = center.x;
-    let y0 = center.y - baseRadius * 0.18;
-    x0 = Math.max(mainSize/2+margin, Math.min(x0, width-mainSize/2-margin));
-    y0 = Math.max(mainSize/2+margin, Math.min(y0, height-mainSize/2-margin));
-    positions.push({x: x0, y: y0, size: mainSize, idx: main._idx, angle: -Math.PI/2, r: baseRadius*0.18});
-    // 나머지 노드
-    const rest = sorted.slice(1);
-    const N = subs.length;
-    for (let i = 0; i < rest.length; i++) {
-      let tries = 0;
-      let pos;
-      const node = rest[i];
-      const size = getNodeSize(node.progress);
-      while (tries < 24) {
-        let angle, r;
-        if (N <= 5) {
-          // 프리셋 각도 인덱싱: i=0~N-2, 중심 노드는 -90도(위쪽)
-          angle = presetAngles[N as unknown as keyof typeof presetAngles][i];
-          // 랜덤성 완전 제거, 충돌 시 반지름만 점진적으로 최대 3배까지 확장
-          r = baseRadius * (1.2 + tries * 0.12);
-        } else {
-          // sunflower + 랜덤(여기는 유지, 6개 이상은 겹침 거의 없음)
-          angle = (i+1) * goldenAngle + Math.PI/32 * (seededRandom(seed + i * 10 + tries*100) - 0.5);
-          r = baseRadius * Math.sqrt((i+1)/N) * (0.85 + 0.3 * seededRandom(seed + i * 100 + tries*50)) * (1 + tries * 0.06);
-        }
-        let x = center.x + r * Math.cos(angle);
-        let y = center.y + r * Math.sin(angle);
-        // clamp
-        x = Math.max(size/2+margin, Math.min(x, width-size/2-margin));
-        y = Math.max(size/2+margin, Math.min(y, height-size/2-margin));
-        pos = {x, y, size, idx: node._idx, angle, r};
-        // 중심 노드와의 각도 최소값(30도) 보장
-        const mainAngle = -Math.PI/2;
-        if (Math.abs(angle-mainAngle) < Math.PI/7) { tries++; continue; }
-        // 중심 노드와의 거리 최소값 보장
-        if (Math.hypot(x-x0, y-y0) < (mainSize+size)/2+margin*1.2) { tries++; continue; }
-        // 겹침 방지(모든 기존 노드와, 거리 체크 강화)
-        if (positions.every(p => Math.hypot(p.x-x, p.y-y) > (p.size+size)/2+margin*1.2)) break;
-        tries++;
-      }
-      positions.push(pos!);
-    }
-    return positions.sort((a, b) => a.idx - b.idx);
-  }
-
-  useLayoutEffect(() => {
-    if (!mainRef.current || !containerRef.current) return;
-    const containerRect = containerRef.current.getBoundingClientRect();
-    const centerX = containerRect.width / 2;
-    const centerY = containerRect.height / 2;
-    const mainCenter = { x: centerX, y: centerY };
-    const baseRadius = Math.min(containerRect.width, containerRect.height) * 0.28;
-    const subs = generateOrganicNeuronPositions(mainCenter, baseRadius, goal.subGoals, randomSeed);
-    setPositions({main: mainCenter, subs});
-  }, [goal.subGoals, randomSeed]);
-
+  // d3-force 기반 force-directed layout 적용
   React.useEffect(() => {
-    const handleResize = () => {
-      if (!mainRef.current || !containerRef.current) return;
-      const containerRect = containerRef.current.getBoundingClientRect();
-      const centerX = containerRect.width / 2;
-      const centerY = containerRect.height / 2;
-      const mainCenter = { x: centerX, y: centerY };
-      const baseRadius = Math.min(containerRect.width, containerRect.height) * 0.28;
-      const subs = generateOrganicNeuronPositions(mainCenter, baseRadius, goal.subGoals, randomSeed);
-      setPositions({main: mainCenter, subs});
-    };
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, [goal.subGoals, randomSeed]);
+    if (!containerRef.current) return;
+    const containerRect = containerRef.current.getBoundingClientRect();
+    const width = containerRect.width;
+    const height = containerRect.height;
+    const margin = 32;
+    const getNodeSize = (progress: number) => 96 + 48 * (progress/100);
+    // force 파라미터를 노드 개수에 따라 동적으로 조정
+    const N = goal.subGoals.length + 1;
+    const chargeStrength = N <= 4 ? -900 : -600;
+    const linkDistance = N <= 4 ? 260 : 200;
+    const linkStrength = N <= 4 ? 1 : 0.8;
+    // 노드 데이터 준비 (중심+서브), 초기 위치를 원형 분포로
+    const nodes = [
+      { id: 'main', size: getNodeSize(goal.progress), x: width/2, y: height/2 },
+      ...goal.subGoals.map((sub, i) => {
+        const angle = (2 * Math.PI * i) / goal.subGoals.length;
+        const r = Math.min(width, height) * 0.28;
+        return {
+          id: String(i),
+          size: getNodeSize(sub.progress),
+          x: width/2 + r * Math.cos(angle),
+          y: height/2 + r * Math.sin(angle)
+        };
+      })
+    ];
+    // 링크 데이터 (중심↔서브)
+    const links = goal.subGoals.map((_, i) => ({ source: 'main', target: String(i) }));
+    // d3-force 시뮬레이션
+    const sim = forceSimulation(nodes)
+      .force('charge', forceManyBody().strength(chargeStrength))
+      .force('center', forceCenter(width/2, height/2))
+      .force('x', forceX(width/2).strength(0.1))
+      .force('y', forceY(height/2).strength(0.1))
+      .force('collide', forceCollide().radius((d: any) => d.size/2 + margin))
+      .force('link', forceLink(links).id((d: any) => d.id).distance(linkDistance).strength(linkStrength))
+      .stop();
+    for (let i = 0; i < 200; i++) sim.tick();
+    setPositions({
+      main: { x: (nodes[0] as any).x, y: (nodes[0] as any).y },
+      subs: nodes.slice(1).map((n, i) => ({ x: (n as any).x, y: (n as any).y, size: n.size, idx: i }))
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [goal, containerRef.current, randomSeed]);
 
   return (
     <div className="min-h-screen flex flex-col bg-deep-navy text-glass-white">
@@ -309,14 +261,13 @@ export default function GoalDetailPage({ params }: PageProps) {
             </filter>
           </defs>
           {positions.subs.map((sub, idx) => {
-            // 곡선 제어점: 각도 기반으로 자연스럽게(중간점 + 각도 방향으로 오프셋)
+            // 곡선 제어점: 메인과 서브 중간 + 랜덤 오프셋으로 organic하게
             const main = positions.main;
-            const angle = sub.angle ?? 0;
             const midX = (main.x + sub.x) / 2;
             const midY = (main.y + sub.y) / 2;
             const offset = 60 + 30 * (Math.random() - 0.5);
-            const cpx = midX + offset * Math.cos(angle - Math.PI/2);
-            const cpy = midY + offset * Math.sin(angle - Math.PI/2);
+            const cpx = midX + offset * (Math.random() - 0.5);
+            const cpy = midY + offset * (Math.random() - 0.5);
             return (
               <g key={idx}>
                 <path
