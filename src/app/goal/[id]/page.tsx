@@ -171,6 +171,12 @@ interface PageProps {
   params: { id: string };
 }
 
+// 랜덤 함수 (seeded)
+function seededRandom(seed: number) {
+  let x = Math.sin(seed++) * 10000;
+  return x - Math.floor(x);
+}
+
 export default function GoalDetailPage({ params }: PageProps) {
   // Next.js 15+ params: Promise or object
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -194,19 +200,19 @@ export default function GoalDetailPage({ params }: PageProps) {
     const containerRect = containerRef.current.getBoundingClientRect();
     const width = containerRect.width;
     const height = containerRect.height;
-    const margin = 32;
+    const margin = 100;
     const getNodeSize = (progress: number) => 96 + 48 * (progress/100);
-    // force 파라미터를 노드 개수에 따라 동적으로 조정
+    // force 파라미터를 더 세게, 퍼짐을 강화
     const N = goal.subGoals.length + 1;
-    const chargeStrength = N <= 4 ? -900 : -600;
-    const linkDistance = N <= 4 ? 260 : 200;
-    const linkStrength = N <= 4 ? 1 : 0.8;
-    // 노드 데이터 준비 (중심+서브), 초기 위치를 원형 분포로
+    const chargeStrength = -2000;
+    const linkDistance = 320;
+    const linkStrength = 1;
+    // 노드 데이터 준비 (중심+서브), 초기 위치를 원형+랜덤 분포로
     const nodes = [
       { id: 'main', size: getNodeSize(goal.progress), x: width/2, y: height/2 },
       ...goal.subGoals.map((sub, i) => {
-        const angle = (2 * Math.PI * i) / goal.subGoals.length;
-        const r = Math.min(width, height) * 0.28;
+        const angle = (2 * Math.PI * i) / goal.subGoals.length + Math.PI/8 * seededRandom(randomSeed + i * 100);
+        const r = Math.min(width, height) * (0.28 + 0.08 * seededRandom(randomSeed + i * 200));
         return {
           id: String(i),
           size: getNodeSize(sub.progress),
@@ -219,14 +225,14 @@ export default function GoalDetailPage({ params }: PageProps) {
     const links = goal.subGoals.map((_, i) => ({ source: 'main', target: String(i) }));
     // d3-force 시뮬레이션
     const sim = forceSimulation(nodes)
-      .force('charge', forceManyBody().strength(chargeStrength))
+      .force('charge', forceManyBody().strength(chargeStrength).distanceMax(width/1.5))
       .force('center', forceCenter(width/2, height/2))
-      .force('x', forceX(width/2).strength(0.1))
-      .force('y', forceY(height/2).strength(0.1))
-      .force('collide', forceCollide().radius((d: any) => d.size/2 + margin))
+      .force('x', forceX(width/2).strength(0.04))
+      .force('y', forceY(height/2).strength(0.04))
+      .force('collide', forceCollide().radius((d: any) => d.size/2 + margin).strength(2.0))
       .force('link', forceLink(links).id((d: any) => d.id).distance(linkDistance).strength(linkStrength))
       .stop();
-    for (let i = 0; i < 200; i++) sim.tick();
+    for (let i = 0; i < 2000; i++) sim.tick();
     setPositions({
       main: { x: (nodes[0] as any).x, y: (nodes[0] as any).y },
       subs: nodes.slice(1).map((n, i) => ({ x: (n as any).x, y: (n as any).y, size: n.size, idx: i }))
