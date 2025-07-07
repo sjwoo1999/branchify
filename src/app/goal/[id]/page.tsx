@@ -301,29 +301,46 @@ export default function GoalDetailPage({ params }: PageProps) {
         </svg>
         {/* 메인 목표 뉴런 노드 */}
         <div ref={mainRef} className="absolute left-1/2 top-32 -translate-x-1/2 z-20 group mb-2">
-          <div className="w-full max-w-xs h-60 md:w-96 md:h-96 rounded-full bg-gradient-to-br from-neon-cyan/80 to-neon-purple/60 border-4 border-neon-cyan shadow-2xl neon-glow-cyan flex flex-col items-center justify-center p-4 md:p-10 hover:scale-105 transition-all duration-300 group-hover:border-neon-purple relative animate-pulse-slow">
-            <h2 className="text-base md:text-2xl font-extrabold mb-3 text-white group-hover:text-neon-cyan transition-colors text-center truncate max-w-full drop-shadow-2xl" title={goal.title} aria-label={`목표 제목: ${goal.title}`}>
+          <div className="w-full max-w-sm h-48 md:w-72 md:h-72 rounded-full bg-gradient-to-br from-neon-cyan/80 to-neon-purple/60 border-4 border-neon-cyan shadow-xl neon-glow-cyan flex flex-col items-center justify-center p-4 md:p-6 hover:scale-105 transition-all duration-300 group-hover:border-neon-purple relative">
+            <h2 className="text-base md:text-xl font-extrabold mb-2 text-white group-hover:text-neon-cyan transition-colors text-center truncate max-w-full drop-shadow-xl" title={goal.title} aria-label={`목표 제목: ${goal.title}`}>
               {truncateText(goal.title, 12)}
             </h2>
-            <div className="w-full max-w-40 mx-auto mb-3">
-              <div className="w-full h-3 bg-white/10 rounded-full overflow-hidden">
-                <div className="h-3 bg-gradient-to-r from-neon-cyan to-neon-purple rounded-full transition-all duration-500" style={{width: `${goal.progress}%`}} />
+            <div className="w-full max-w-40 mx-auto mb-2">
+              <div className="w-full h-2 bg-white/10 rounded-full overflow-hidden">
+                <div className="h-2 bg-gradient-to-r from-neon-cyan to-neon-purple rounded-full transition-all duration-500" style={{width: `${goal.progress}%`}} />
               </div>
               <div className="text-center mt-2">
                 <span className="text-neon-cyan text-base font-bold" aria-label={`진행률: ${goal.progress}%`}>{goal.progress}%</span>
               </div>
             </div>
             <div className="flex gap-2 mb-2 flex-wrap justify-center">
-              {goal.tags.slice(0,3).map(tag => (
+              {goal.tags.slice(0,1).map(tag => (
                 <span key={tag} className="text-sm border-2 border-neon-cyan rounded-full px-3 py-1 text-neon-cyan bg-white/10 backdrop-blur-sm font-semibold shadow-md" aria-label={`태그: ${tag}`}>{tag}</span>
               ))}
-              {goal.tags.length > 3 && (
-                <span className="text-sm border border-neon-cyan/30 rounded-full px-2 py-1 text-neon-cyan/60 bg-white/5 backdrop-blur-sm">+{goal.tags.length-3}</span>
-              )}
             </div>
-            <p className="text-sm text-white/80 text-center max-w-[220px] mx-auto line-clamp-2 overflow-hidden" title={goal.description}>{goal.description}</p>
+            {/* 상세 정보 오버레이: hover 시만 노출 */}
+            <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/80 bg-opacity-90 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-20 p-4 pointer-events-none">
+              <div className="text-center max-w-[220px] mx-auto">
+                <h2 className="text-base md:text-xl font-extrabold mb-2 text-neon-cyan truncate max-w-full drop-shadow-xl" title={goal.title}>
+                  {truncateText(goal.title, 12)}
+                </h2>
+                <p className="text-xs text-white/80 mb-3 line-clamp-2 max-h-[2.6em] overflow-hidden">
+                  {goal.description}
+                </p>
+                {/* 전체 태그 */}
+                <div className="flex gap-2 mb-4 flex-wrap justify-center">
+                  {goal.tags.map(tag => (
+                    <span key={tag} className="text-xs border border-neon-cyan/50 rounded-full px-2 py-1 text-neon-cyan bg-white/5 backdrop-blur-sm" aria-label={`태그: ${tag}`}>{tag}</span>
+                  ))}
+                </div>
+                {/* 하위 목표 수 */}
+                <div className="text-xs text-white/60">
+                  {goal.subGoals.length}개 하위 목표
+                </div>
+              </div>
+            </div>
           </div>
-          <div className="absolute inset-0 rounded-full bg-neon-cyan/30 blur-2xl opacity-80 animate-pulse-slow pointer-events-none"></div>
+          <div className="absolute inset-0 rounded-full bg-neon-cyan/20 blur-lg opacity-60 pointer-events-none"></div>
         </div>
         {/* 서브골 뉴런 노드들 (반원 위에 분산) */}
         {goal.subGoals.map((sub, idx) => (
@@ -334,8 +351,8 @@ export default function GoalDetailPage({ params }: PageProps) {
             style={{
               left: positions.subs[idx]?.x ? positions.subs[idx].x - positions.subs[idx].size/2 : '50%',
               top: positions.subs[idx]?.y ? positions.subs[idx].y - positions.subs[idx].size/2 : '70%',
-              width: positions.subs[idx]?.size || (typeof window !== 'undefined' && window.innerWidth < 768 ? 160 : 224),
-              height: positions.subs[idx]?.size || (typeof window !== 'undefined' && window.innerWidth < 768 ? 160 : 224),
+              width: positions.subs[idx]?.size || (typeof window !== 'undefined' && window.innerWidth < 768 ? 140 : 180),
+              height: positions.subs[idx]?.size || (typeof window !== 'undefined' && window.innerWidth < 768 ? 140 : 180),
               transition: 'left 0.5s, top 0.5s, width 0.5s, height 0.5s',
             }}
           >
