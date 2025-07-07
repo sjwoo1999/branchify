@@ -222,6 +222,9 @@ export default function GoalDetailPage({ params }: PageProps) {
         };
       })
     ];
+    // 메인 노드를 화면 중앙에 고정
+    (nodes[0] as any).fx = width/2;
+    (nodes[0] as any).fy = height/2;
     // 링크 데이터 (중심↔서브)
     const links = goal.subGoals.map((_, i) => ({ source: 'main', target: String(i) }));
     // d3-force 시뮬레이션
