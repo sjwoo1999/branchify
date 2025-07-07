@@ -201,48 +201,22 @@ export default function GoalDetailPage({ params }: PageProps) {
     const containerRect = containerRef.current.getBoundingClientRect();
     const width = containerRect.width;
     const height = containerRect.height;
-    const margin = 180;
-    const getNodeSize = (progress: number) => 96 + 48 * (progress/100);
-    // force 파라미터를 더 세게, 퍼짐을 강화
-    const N = goal.subGoals.length + 1;
-    const chargeStrength = -2000;
-    const linkDistance = 420;
-    const linkStrength = 1;
-    // 노드 데이터 준비 (중심+서브), 초기 위치를 원형+랜덤 분포로
-    const nodes = [
-      { id: 'main', size: getNodeSize(goal.progress), x: width/2, y: height/2 },
-      ...goal.subGoals.map((sub, i) => {
-        const angle = (2 * Math.PI * i) / goal.subGoals.length + Math.PI/8 * seededRandom(randomSeed + i * 100);
-        const r = Math.min(width, height) * (0.28 + 0.08 * seededRandom(randomSeed + i * 200));
-        return {
-          id: String(i),
-          size: getNodeSize(sub.progress),
-          x: width/2 + r * Math.cos(angle),
-          y: height/2 + r * Math.sin(angle)
-        };
-      })
-    ];
-    // 메인 노드를 화면 중앙에 고정
-    (nodes[0] as any).fx = width/2;
-    (nodes[0] as any).fy = height/2;
-    // 링크 데이터 (중심↔서브)
-    const links = goal.subGoals.map((_, i) => ({ source: 'main', target: String(i) }));
-    // d3-force 시뮬레이션
-    const sim = forceSimulation(nodes)
-      .force('charge', forceManyBody().strength(chargeStrength).distanceMax(width/1.5))
-      .force('center', forceCenter(width/2, height/2))
-      .force('x', forceX(width/2).strength(0.04))
-      .force('y', forceY(height/2).strength(0.04))
-      .force('collide', forceCollide().radius((d: any) => d.size/2 + margin).strength(2.0))
-      .force('link', forceLink(links).id((d: any) => d.id).distance(linkDistance).strength(linkStrength))
-      .stop();
-    for (let i = 0; i < 2000; i++) sim.tick();
-    setPositions({
-      main: { x: (nodes[0] as any).x, y: (nodes[0] as any).y },
-      subs: nodes.slice(1).map((n, i) => ({ x: (n as any).x, y: (n as any).y, size: n.size, idx: i }))
+    const centerX = width / 2;
+    const centerY = height / 2;
+    const mainSize = 96 + 48 * (goal.progress/100);
+    const radius = Math.min(width, height) * 0.32 + mainSize / 2 + 60;
+    const subs = goal.subGoals.map((sub, i) => {
+      const angle = (2 * Math.PI * i) / subCount - Math.PI / 2;
+      const x = centerX + radius * Math.cos(angle);
+      const y = centerY + radius * Math.sin(angle);
+      const size = 96 + 48 * (sub.progress/100);
+      return { x, y, size, idx: i };
     });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [goal, containerRef.current, randomSeed]);
+    setPositions({
+      main: { x: centerX, y: centerY },
+      subs
+    });
+  }, [goal, containerRef.current]);
 
   return (
     <div className="min-h-screen flex flex-col bg-deep-navy text-glass-white">
