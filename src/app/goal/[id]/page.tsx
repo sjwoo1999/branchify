@@ -248,17 +248,25 @@ export default function GoalDetailPage({ params }: PageProps) {
             </filter>
           </defs>
           {positions.subs.map((sub, idx) => {
-            // 곡선 제어점: 메인과 서브 중간 + 랜덤 오프셋으로 organic하게
             const main = positions.main;
-            const midX = (main.x + sub.x) / 2;
-            const midY = (main.y + sub.y) / 2;
-            const offset = 60 + 30 * (Math.random() - 0.5);
-            const cpx = midX + offset * (Math.random() - 0.5);
-            const cpy = midY + offset * (Math.random() - 0.5);
+            const subNode = sub;
+            // 각도 계산
+            const angle = Math.atan2(subNode.y - main.y, subNode.x - main.x);
+            const mainR = (document.querySelector('.main-node')?.clientWidth || 160) / 2;
+            const subR = subNode.size / 2;
+            // 시작점: 중앙 노드 테두리
+            const startX = main.x + mainR * Math.cos(angle);
+            const startY = main.y + mainR * Math.sin(angle);
+            // 끝점: 서브 노드 테두리
+            const endX = subNode.x - subR * Math.cos(angle);
+            const endY = subNode.y - subR * Math.sin(angle);
+            // 곡선 제어점 (중간점 기준, 살짝 휘게)
+            const midX = (startX + endX) / 2 + 30 * Math.sin(angle);
+            const midY = (startY + endY) / 2 - 30 * Math.cos(angle);
             return (
               <g key={idx}>
                 <path
-                  d={`M ${main.x} ${main.y+60} Q ${cpx} ${cpy} ${sub.x} ${sub.y-60}`}
+                  d={`M ${startX} ${startY} Q ${midX} ${midY} ${endX} ${endY}`}
                   stroke="#00fff7"
                   strokeWidth="5"
                   fill="none"
@@ -268,8 +276,8 @@ export default function GoalDetailPage({ params }: PageProps) {
                 />
                 {/* 시냅스 점 */}
                 <circle
-                  cx={cpx}
-                  cy={cpy}
+                  cx={midX}
+                  cy={midY}
                   r="5"
                   fill="#ff00ff"
                   filter="url(#synapse-glow)"
@@ -280,7 +288,7 @@ export default function GoalDetailPage({ params }: PageProps) {
           })}
         </svg>
         {/* 메인 목표 뉴런 노드 */}
-        <div ref={mainRef} className="absolute left-1/2 top-32 -translate-x-1/2 z-20 group mb-2">
+        <div ref={mainRef} className="main-node absolute left-1/2 top-32 -translate-x-1/2 z-20 group mb-2">
           <div className="w-full max-w-sm h-48 md:w-72 md:h-72 rounded-full bg-gradient-to-br from-neon-cyan/80 to-neon-purple/60 border-4 border-neon-cyan shadow-xl neon-glow-cyan flex flex-col items-center justify-center p-4 md:p-6 hover:scale-105 transition-all duration-300 group-hover:border-neon-purple relative">
             <h2 className="text-base md:text-xl font-extrabold mb-2 text-white group-hover:text-neon-cyan transition-colors text-center truncate max-w-full drop-shadow-xl" title={goal.title} aria-label={`목표 제목: ${goal.title}`}>
               {truncateText(goal.title, 12)}
