@@ -439,7 +439,7 @@ export default function HomePage() {
           <Link key={idx} href={`/goal/${idx}`}>
             <div
               ref={el => { cardRefs.current[idx] = el; }}
-              className="relative z-20 group"
+              className="relative z-20 group pointer-events-auto"
             >
               {/* 뉴런 노드 */}
               <div className="relative">
@@ -500,10 +500,8 @@ export default function HomePage() {
                     </div>
                   </div>
                 </div>
-                
                 {/* 뉴런 글로우 효과 */}
                 <div className="absolute inset-0 rounded-full bg-neon-cyan/20 blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                
                 {/* 전기 신호 애니메이션 */}
                 <div className="absolute inset-0 rounded-full border border-neon-cyan/30 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                   <div className="absolute inset-0 rounded-full border border-neon-cyan/20 animate-ping"></div>
@@ -513,50 +511,6 @@ export default function HomePage() {
           </Link>
         ))}
       </main>
-      <footer className="w-full flex justify-center gap-8 py-6 border-t border-white/10 bg-deep-navy/80">
-        <div className="text-center">
-          <div className="text-lg font-bold">{goals.length}</div>
-          <div className="text-xs text-glass-white/60">총 목표</div>
-        </div>
-        <div className="text-center">
-          <div className="text-lg font-bold">{goals.reduce((acc, g) => acc + g.subGoals.length, 0)}</div>
-          <div className="text-xs text-glass-white/60">총 하위 목표</div>
-        </div>
-        <div className="text-center">
-          <div className="text-lg font-bold">
-            {Math.round(goals.reduce((acc, g) => acc + g.progress, 0) / goals.length)}%
-          </div>
-          <div className="text-xs text-glass-white/60">평균 진행률</div>
-        </div>
-      </footer>
-
-      {/* Goal Editor Modal */}
-      <GoalEditor
-        isOpen={isEditorOpen}
-        onClose={closeEditor}
-        onSave={editingGoal ? handleUpdateGoal : handleCreateGoal}
-        goal={editingGoal ?? undefined}
-        loading={loading}
-      />
-
-      {/* Loading Overlay */}
-      {loading && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
-          <div className="text-center">
-            <div className="w-16 h-16 border-4 border-neon-purple border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-            <p className="text-glass-white">로딩중...</p>
-          </div>
-        </div>
-      )}
-
-      {/* Error Display */}
-      {error && (
-        <div className="fixed bottom-4 right-4 z-50">
-          <GlassCard className="p-4 bg-neon-pink/20 border-neon-pink">
-            <p className="text-neon-pink">{error}</p>
-          </GlassCard>
-        </div>
-      )}
     </div>
   );
 }
