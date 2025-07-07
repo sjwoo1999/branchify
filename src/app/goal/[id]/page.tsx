@@ -302,7 +302,7 @@ export default function GoalDetailPage({ params }: PageProps) {
         {/* 메인 목표 뉴런 노드 */}
         <div ref={mainRef} className="absolute left-1/2 top-32 -translate-x-1/2 z-20 group mb-2">
           <div className="w-72 h-72 md:w-96 md:h-96 rounded-full bg-gradient-to-br from-neon-cyan/80 to-neon-purple/60 border-4 border-neon-cyan shadow-2xl neon-glow-cyan flex flex-col items-center justify-center p-10 hover:scale-105 transition-all duration-300 group-hover:border-neon-purple relative animate-pulse-slow">
-            <h2 className="text-2xl font-extrabold mb-3 text-white group-hover:text-neon-cyan transition-colors text-center truncate max-w-full drop-shadow-2xl" title={goal.title}>
+            <h2 className="text-2xl font-extrabold mb-3 text-white group-hover:text-neon-cyan transition-colors text-center truncate max-w-full drop-shadow-2xl" title={goal.title} aria-label={`목표 제목: ${goal.title}`}>
               {truncateText(goal.title, 12)}
             </h2>
             <div className="w-full max-w-40 mx-auto mb-3">
@@ -310,14 +310,12 @@ export default function GoalDetailPage({ params }: PageProps) {
                 <div className="h-3 bg-gradient-to-r from-neon-cyan to-neon-purple rounded-full transition-all duration-500" style={{width: `${goal.progress}%`}} />
               </div>
               <div className="text-center mt-2">
-                <span className="text-neon-cyan text-base font-bold">{goal.progress}%</span>
+                <span className="text-neon-cyan text-base font-bold" aria-label={`진행률: ${goal.progress}%`}>{goal.progress}%</span>
               </div>
             </div>
             <div className="flex gap-2 mb-2 flex-wrap justify-center">
               {goal.tags.slice(0,3).map(tag => (
-                <span key={tag} className="text-sm border-2 border-neon-cyan rounded-full px-3 py-1 text-neon-cyan bg-white/10 backdrop-blur-sm font-semibold shadow-md">
-                  {tag}
-                </span>
+                <span key={tag} className="text-sm border-2 border-neon-cyan rounded-full px-3 py-1 text-neon-cyan bg-white/10 backdrop-blur-sm font-semibold shadow-md" aria-label={`태그: ${tag}`}>{tag}</span>
               ))}
               {goal.tags.length > 3 && (
                 <span className="text-sm border border-neon-cyan/30 rounded-full px-2 py-1 text-neon-cyan/60 bg-white/5 backdrop-blur-sm">+{goal.tags.length-3}</span>
@@ -344,10 +342,10 @@ export default function GoalDetailPage({ params }: PageProps) {
             <div className="w-full h-full rounded-full bg-gradient-to-br from-glass/80 to-glass/40 border-2 border-neon-cyan/50 shadow-lg backdrop-blur-sm flex flex-col items-center justify-center p-4 hover:scale-105 transition-all duration-300 group-hover:border-neon-cyan">
               <div className={`w-8 h-8 flex items-center justify-center rounded-full mb-2
                 ${sub.progress === 100 ? 'bg-neon-cyan text-white' : sub.progress > 0 ? 'border-2 border-neon-cyan text-neon-cyan' : 'border-2 border-white/30 text-white/50'}
-              `} title="하위 목표 순서">
+              `} title="하위 목표 순서" aria-label={`하위 목표 순서: ${idx + 1}`}>
                 {idx + 1}
               </div>
-              <div className="font-semibold text-white mb-1 text-center truncate max-w-full" title={sub.title}>
+              <div className="font-semibold text-white mb-1 text-center truncate max-w-full" title={sub.title} aria-label={`목표 제목: ${sub.title}`}>
                 {truncateText(sub.title, 12)}
               </div>
               <div className="w-full h-2 bg-white/10 rounded mb-2">
@@ -355,13 +353,13 @@ export default function GoalDetailPage({ params }: PageProps) {
               </div>
               <div className="flex gap-1 mb-1 flex-wrap justify-center">
                 {sub.tags.slice(0,2).map(tag => (
-                  <span key={tag} className="text-xs border border-neon-cyan/50 rounded-full px-2 py-1 text-neon-cyan bg-white/5 backdrop-blur-sm">{tag}</span>
+                  <span key={tag} className="text-xs border border-neon-cyan/50 rounded-full px-2 py-1 text-neon-cyan bg-white/5 backdrop-blur-sm" aria-label={`태그: ${tag}`}>{tag}</span>
                 ))}
                 {sub.tags.length > 2 && (
-                  <span className="text-xs border border-neon-cyan/30 rounded-full px-2 py-1 text-neon-cyan/60 bg-white/5 backdrop-blur-sm">+{sub.tags.length-2}</span>
+                  <span className="text-xs border border-neon-cyan/30 rounded-full px-2 py-1 text-neon-cyan/60 bg-white/5 backdrop-blur-sm" aria-label={`태그: ${sub.tags.slice(2).join(', ')}`}>+{sub.tags.length-2}</span>
                 )}
               </div>
-              <div className="text-xs text-white/60 text-center line-clamp-1 max-w-[100px] mx-auto overflow-hidden" title={sub.description}>{sub.description}</div>
+              <div className="text-xs text-white/60 text-center line-clamp-1 max-w-[100px] mx-auto overflow-hidden" title={sub.description} aria-label={`목표 설명: ${sub.description}`}>{sub.description}</div>
             </div>
           </div>
         ))}

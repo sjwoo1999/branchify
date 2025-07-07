@@ -452,13 +452,13 @@ export default function HomePage() {
                   <div className="absolute top-1/2 -left-4 transform -translate-y-1/2 w-2 h-8 bg-gradient-to-t from-neon-cyan to-transparent rounded-full opacity-60"></div>
                   {/* 기본 정보 */}
                   <div className="text-center max-w-[220px] mx-auto overflow-hidden">
-                    <h2 className="text-lg font-bold mb-2 text-white group-hover:text-neon-cyan transition-colors truncate max-w-full drop-shadow-lg" title={goal.title}>
+                    <h2 className="text-xl font-extrabold mb-2 text-white group-hover:text-neon-cyan transition-colors truncate max-w-full drop-shadow-xl" title={goal.title} aria-label={`목표 제목: ${goal.title}`}>
                       {truncateText(goal.title, 12)}
                     </h2>
                     {/* 대표 태그만 */}
                     <div className="flex gap-2 mb-4 flex-wrap justify-center">
                       {goal.tags.slice(0, 1).map(tag => (
-                        <span key={tag} className="text-xs border border-neon-cyan/50 rounded-full px-2 py-1 text-neon-cyan bg-white/5 backdrop-blur-sm">
+                        <span key={tag} className="text-sm border border-neon-cyan/50 rounded-full px-2 py-1 text-neon-cyan bg-white/5 backdrop-blur-sm" aria-label={`태그: ${tag}`}>
                           {tag}
                         </span>
                       ))}
@@ -472,7 +472,7 @@ export default function HomePage() {
                         />
                       </div>
                       <div className="text-center mt-2">
-                        <span className="text-neon-cyan text-sm font-medium">{goal.progress}%</span>
+                        <span className="text-neon-cyan text-base font-bold" aria-label={`진행률: ${goal.progress}%`}>{goal.progress}%</span>
                       </div>
                     </div>
                   </div>
@@ -488,7 +488,7 @@ export default function HomePage() {
                       {/* 전체 태그 */}
                       <div className="flex gap-2 mb-4 flex-wrap justify-center">
                         {goal.tags.map(tag => (
-                          <span key={tag} className="text-xs border border-neon-cyan/50 rounded-full px-2 py-1 text-neon-cyan bg-white/5 backdrop-blur-sm">
+                          <span key={tag} className="text-sm border border-neon-cyan/50 rounded-full px-2 py-1 text-neon-cyan bg-white/5 backdrop-blur-sm" aria-label={`태그: ${tag}`}>
                             {tag}
                           </span>
                         ))}
