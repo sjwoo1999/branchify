@@ -344,7 +344,9 @@ export default function GoalDetailPage({ params }: PageProps) {
             <div className="w-full h-full rounded-full bg-gradient-to-br from-glass/80 to-glass/40 border-2 border-neon-cyan/50 shadow-lg backdrop-blur-sm flex flex-col items-center justify-center p-4 hover:scale-105 transition-all duration-300 group-hover:border-neon-cyan">
               <div className={`w-8 h-8 flex items-center justify-center rounded-full mb-2
                 ${sub.progress === 100 ? 'bg-neon-cyan text-white' : sub.progress > 0 ? 'border-2 border-neon-cyan text-neon-cyan' : 'border-2 border-white/30 text-white/50'}
-              `}>{idx + 1}</div>
+              `} title="하위 목표 순서">
+                {idx + 1}
+              </div>
               <div className="font-semibold text-white mb-1 text-center truncate max-w-full" title={sub.title}>
                 {truncateText(sub.title, 12)}
               </div>
