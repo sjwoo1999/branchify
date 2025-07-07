@@ -2,35 +2,36 @@
 import React, { useRef, useState, use as usePromise } from 'react';
 import Link from 'next/link';
 import { forceSimulation, forceManyBody, forceCenter, forceCollide, forceLink, forceX, forceY } from 'd3-force';
+import { truncateText } from '@/utils';
 
 // 임시 데이터 (실제 프로젝트에서는 API/DB에서 가져옴)
 const goals = [
   {
-    "title": "개발자로 성장하기",
+    "title": "개발자 성장",
     "description": "프론트엔드부터 AI까지 전방위적으로 성장하며 포트폴리오 완성",
     "tags": ["개발", "프론트엔드", "AI", "커리어성장"],
     "progress": 45,
     "subGoals": [
       {
-        "title": "React & Next.js 완전 마스터하기",
+        "title": "React/Next.js 마스터",
         "progress": 60,
         "tags": ["React", "Next", "UIUX"],
         "description": "컴포넌트 설계, Tailwind, SSR/CSR, 접근성 등 심화"
       },
       {
-        "title": "TypeScript 심화",
+        "title": "타입스크립트 실력 쌓기",
         "progress": 30,
         "tags": ["TypeScript", "안정성"],
         "description": "타입 선언, 제네릭, 타입 유틸리티, 실전 프로젝트 적용"
       },
       {
-        "title": "AI 서비스 연동 및 실험",
+        "title": "AI 서비스 실험",
         "progress": 10,
         "tags": ["AI", "OpenAI", "실험"],
         "description": "GPT, Vision API, Emotion API 등을 통한 인터랙티브 서비스 실험"
       },
       {
-        "title": "개인 포트폴리오 웹사이트 리뉴얼",
+        "title": "포트폴리오 리뉴얼",
         "progress": 80,
         "tags": ["포트폴리오", "디자인", "자기표현"],
         "description": "모바일/웹 반응형, 애니메이션, 글래스모피즘 스타일 통합"
@@ -38,31 +39,31 @@ const goals = [
     ]
   },
   {
-    "title": "멀티모달 감정 회고 서비스 완성하기",
+    "title": "감정 회고 서비스 완성",
     "description": "멀티모달 감정 인식 기술을 적용한 개인 성장 피드백 서비스 개발",
     "tags": ["AI", "감정인식", "회고", "프로젝트"],
     "progress": 25,
     "subGoals": [
       {
-        "title": "표정 기반 감정 분석 모듈 구현",
+        "title": "표정 감정 분석 만들기",
         "progress": 40,
         "tags": ["Vision", "ML"],
         "description": "Mediapipe, MTCNN, FACS 기반 표정 감정 모델 적용"
       },
       {
-        "title": "음성 기반 감정 분석",
+        "title": "음성 감정 분석 도전",
         "progress": 10,
         "tags": ["Voice", "Signal"],
         "description": "음성 톤/스펙트럼 기반 실험"
       },
       {
-        "title": "텍스트 기반 심리 해석",
+        "title": "텍스트 심리 해석 연습",
         "progress": 20,
         "tags": ["NLP", "심리학"],
         "description": "VAD 모델, BERT 기반 감정 분석"
       },
       {
-        "title": "PDF 개인 리포트 자동화",
+        "title": "리포트 자동화 구축",
         "progress": 30,
         "tags": ["리포트", "자동화"],
         "description": "세션 기록, PDF/HTML 리포트 자동 생성"
@@ -70,31 +71,31 @@ const goals = [
     ]
   },
   {
-    "title": "개인 루틴 & 콘텐츠 제작 루틴 확립",
+    "title": "루틴과 창작 습관 만들기",
     "description": "일상과 창작을 동시에 최적화하는 루틴 설계 및 실험",
     "tags": ["루틴", "콘텐츠", "생산성"],
     "progress": 55,
     "subGoals": [
       {
-        "title": "아침 기상 루틴 확립",
+        "title": "아침 루틴 만들기",
         "progress": 70,
         "tags": ["건강", "습관"],
         "description": "기상, 스트레칭, 저널 작성, 가벼운 운동 포함"
       },
       {
-        "title": "주간 유튜브 쇼츠/리일스 제작 루틴",
+        "title": "유튜브 영상 루틴",
         "progress": 50,
         "tags": ["영상", "SNS"],
         "description": "촬영 → 컷 편집 → 자막 → 썸네일 → 업로드 플로우 정립"
       },
       {
-        "title": "주간 회고 & 다음 주 계획",
+        "title": "주간 회고와 계획 세우기",
         "progress": 60,
         "tags": ["회고", "계획"],
         "description": "Notion 기반 주간 리뷰 및 목표 재설계"
       },
       {
-        "title": "스터디윗미/라이브 제작 루틴",
+        "title": "라이브 방송 루틴",
         "progress": 40,
         "tags": ["라이브", "소통"],
         "description": "실시간 작업 방송, 시청자 참여형 콘텐츠 기획"
@@ -102,31 +103,31 @@ const goals = [
     ]
   },
   {
-    "title": "영어 실력 한 단계 올리기",
+    "title": "영어 실력 높이기",
     "description": "실제 업무 및 글로벌 협업에 필요한 영어 능력 강화",
     "tags": ["영어", "커뮤니케이션", "글로벌"],
     "progress": 35,
     "subGoals": [
       {
-        "title": "비즈니스 이메일 작성 훈련",
+        "title": "이메일 작성 연습",
         "progress": 60,
         "tags": ["Writing"],
         "description": "클라이언트, 파트너, 내부 커뮤니케이션용"
       },
       {
-        "title": "실전 회화 스터디 참여",
+        "title": "회화 스터디 참여",
         "progress": 20,
         "tags": ["Speaking"],
         "description": "주 2회 네이티브 그룹 참여"
       },
       {
-        "title": "기술/AI 관련 영어 문서 독해",
+        "title": "영어 문서 읽기",
         "progress": 30,
         "tags": ["Reading"],
         "description": "논문, White paper, 개발 문서 독해"
       },
       {
-        "title": "발표 및 피치덱 발표 연습",
+        "title": "발표 연습하기",
         "progress": 10,
         "tags": ["Presentation"],
         "description": "IR 피치덱, 기술 발표, Q&A 대응 훈련"
@@ -134,25 +135,25 @@ const goals = [
     ]
   },
   {
-    "title": "나만의 디자인 시스템 구축",
+    "title": "디자인 시스템 만들기",
     "description": "개인 브랜드 아이덴티티와 UX 통일성을 위한 디자인 시스템 설계",
     "tags": ["디자인", "시스템", "브랜딩"],
     "progress": 20,
     "subGoals": [
       {
-        "title": "색상 팔레트 및 컴포넌트 가이드",
+        "title": "색상/컴포넌트 가이드",
         "progress": 30,
         "tags": ["컬러", "UI"],
         "description": "주 컬러(#F76241 등) 및 서브 컬러 체계화"
       },
       {
-        "title": "타이포그래피 및 스케일 설계",
+        "title": "타이포그래피 설계",
         "progress": 15,
         "tags": ["폰트", "가이드"],
         "description": "반응형 환경 고려한 계층화 설계"
       },
       {
-        "title": "디자인 토큰 및 변수화",
+        "title": "디자인 토큰 만들기",
         "progress": 10,
         "tags": ["Token", "시스템화"],
         "description": "Tailwind, CSS 변수 기반"
@@ -279,11 +280,11 @@ export default function GoalDetailPage({ params }: PageProps) {
                 <path
                   d={`M ${main.x} ${main.y+60} Q ${cpx} ${cpy} ${sub.x} ${sub.y-60}`}
                   stroke="#00fff7"
-                  strokeWidth="3"
+                  strokeWidth="5"
                   fill="none"
                   filter="url(#neuron-glow)"
                   strokeLinecap="round"
-                  opacity="0.8"
+                  opacity="1"
                 />
                 {/* 시냅스 점 */}
                 <circle
@@ -301,7 +302,9 @@ export default function GoalDetailPage({ params }: PageProps) {
         {/* 메인 목표 뉴런 노드 */}
         <div ref={mainRef} className="absolute left-1/2 top-32 -translate-x-1/2 z-20 group mb-2">
           <div className="w-56 h-56 rounded-full bg-gradient-to-br from-glass/80 to-glass/40 border-2 border-neon-cyan/50 shadow-lg backdrop-blur-sm flex flex-col items-center justify-center p-6 hover:scale-105 transition-all duration-300 group-hover:border-neon-cyan">
-            <h2 className="text-xl font-bold mb-2 text-white group-hover:text-neon-cyan transition-colors text-center truncate max-w-full">{goal.title}</h2>
+            <h2 className="text-xl font-bold mb-2 text-white group-hover:text-neon-cyan transition-colors text-center truncate max-w-full drop-shadow-lg" title={goal.title}>
+              {truncateText(goal.title, 12)}
+            </h2>
             <div className="w-full max-w-40 mx-auto mb-2">
               <div className="w-full h-2 bg-white/10 rounded-full overflow-hidden">
                 <div className="h-2 bg-gradient-to-r from-neon-cyan to-neon-purple rounded-full transition-all duration-500" style={{width: `${goal.progress}%`}} />
@@ -340,7 +343,9 @@ export default function GoalDetailPage({ params }: PageProps) {
               <div className={`w-8 h-8 flex items-center justify-center rounded-full mb-2
                 ${sub.progress === 100 ? 'bg-neon-cyan text-white' : sub.progress > 0 ? 'border-2 border-neon-cyan text-neon-cyan' : 'border-2 border-white/30 text-white/50'}
               `}>{idx + 1}</div>
-              <div className="font-semibold text-white mb-1 text-center truncate max-w-full" title={sub.title}>{sub.title}</div>
+              <div className="font-semibold text-white mb-1 text-center truncate max-w-full" title={sub.title}>
+                {truncateText(sub.title, 12)}
+              </div>
               <div className="w-full h-2 bg-white/10 rounded mb-2">
                 <div className="h-2 bg-neon-cyan rounded" style={{width: `${sub.progress}%`}} />
               </div>

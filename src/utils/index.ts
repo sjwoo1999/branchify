@@ -122,8 +122,7 @@ export const shouldCompleteRoutine = (routine: Routine): boolean => {
 
 // 문자열 관련 유틸리티
 export const truncateText = (text: string, maxLength: number): string => {
-  if (text.length <= maxLength) return text;
-  return text.slice(0, maxLength) + '...';
+  return text.length > maxLength ? text.slice(0, maxLength) + '…' : text;
 };
 
 export const capitalizeFirst = (text: string): string => {

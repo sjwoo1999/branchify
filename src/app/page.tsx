@@ -14,6 +14,7 @@ import GoalList from '@/features/goal/GoalList';
 import GoalSection from '@/features/goal/GoalSection';
 import Link from 'next/link';
 import MasterGoalCard from '@/features/goal/MasterGoalCard';
+import { truncateText } from '@/utils';
 
 // 샘플 데이터
 const masterGoals = [
@@ -351,27 +352,27 @@ export default function HomePage() {
           <defs>
             {/* 뉴런 글로우 효과 */}
             <filter id="neuron-glow" x="-30%" y="-30%" width="160%" height="160%">
-              <feDropShadow dx="0" dy="0" stdDeviation="6" flood-color="#00fff7" flood-opacity="0.8" />
-              <feDropShadow dx="0" dy="0" stdDeviation="12" flood-color="#00fff7" flood-opacity="0.4" />
-              <feDropShadow dx="0" dy="0" stdDeviation="20" flood-color="#00fff7" flood-opacity="0.2" />
+              <feDropShadow dx="0" dy="0" stdDeviation="6" floodColor="#00fff7" floodOpacity="0.8" />
+              <feDropShadow dx="0" dy="0" stdDeviation="12" floodColor="#00fff7" floodOpacity="0.4" />
+              <feDropShadow dx="0" dy="0" stdDeviation="20" floodColor="#00fff7" floodOpacity="0.2" />
             </filter>
             
             {/* 시냅스 연결 글로우 */}
             <filter id="synapse-glow" x="-30%" y="-30%" width="160%" height="160%">
-              <feDropShadow dx="0" dy="0" stdDeviation="3" flood-color="#ff00ff" flood-opacity="0.6" />
-              <feDropShadow dx="0" dy="0" stdDeviation="6" flood-color="#ff00ff" flood-opacity="0.3" />
+              <feDropShadow dx="0" dy="0" stdDeviation="3" floodColor="#ff00ff" floodOpacity="0.6" />
+              <feDropShadow dx="0" dy="0" stdDeviation="6" floodColor="#ff00ff" floodOpacity="0.3" />
             </filter>
             
             {/* 전기 신호 애니메이션 */}
             <linearGradient id="signal-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
               <stop offset="0%" stopColor="#00fff7" stopOpacity="0">
-                <animate attributeName="stop-opacity" values="0;1;0" dur="2s" repeatCount="indefinite" />
+                <animate attributeName="stopOpacity" values="0;1;0" dur="2s" repeatCount="indefinite" />
               </stop>
               <stop offset="50%" stopColor="#ff00ff" stopOpacity="1">
-                <animate attributeName="stop-opacity" values="1;0;1" dur="2s" repeatCount="indefinite" />
+                <animate attributeName="stopOpacity" values="1;0;1" dur="2s" repeatCount="indefinite" />
               </stop>
               <stop offset="100%" stopColor="#00fff7" stopOpacity="0">
-                <animate attributeName="stop-opacity" values="0;1;0" dur="2s" repeatCount="indefinite" />
+                <animate attributeName="stopOpacity" values="0;1;0" dur="2s" repeatCount="indefinite" />
               </stop>
             </linearGradient>
           </defs>
@@ -397,11 +398,11 @@ export default function HomePage() {
                 <path
                   d={`M ${center.x} ${center.y} Q ${midX + controlOffset} ${midY - controlOffset} ${next.x} ${next.y}`}
                   stroke="url(#signal-gradient)"
-                  strokeWidth="3"
+                  strokeWidth="5"
                   fill="none"
                   filter="url(#synapse-glow)"
                   strokeLinecap="round"
-                  opacity="0.8"
+                  opacity="1"
                 />
                 
                 {/* 시냅스 점들 */}
@@ -452,8 +453,8 @@ export default function HomePage() {
                   
                   {/* 뉴런 내부 콘텐츠 */}
                   <div className="text-center max-w-[220px] mx-auto overflow-hidden">
-                    <h2 className="text-lg font-bold mb-2 text-white group-hover:text-neon-cyan transition-colors truncate max-w-full">
-                      {goal.title}
+                    <h2 className="text-lg font-bold mb-2 text-white group-hover:text-neon-cyan transition-colors truncate max-w-full drop-shadow-lg" title={goal.title}>
+                      {truncateText(goal.title, 12)}
                     </h2>
                     <p className="text-xs text-white/70 mb-3 line-clamp-2 max-h-[2.6em] overflow-hidden">
                       {goal.description}
