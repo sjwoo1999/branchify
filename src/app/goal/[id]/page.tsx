@@ -205,8 +205,9 @@ export default function GoalDetailPage({ params }: PageProps) {
     const centerY = height / 2;
     const mainSize = 96 + 48 * (goal.progress/100);
     const radius = Math.min(width, height) * 0.32 + mainSize / 2 + 60;
+    const offset = Math.PI / subCount;
     const subs = goal.subGoals.map((sub, i) => {
-      const angle = (2 * Math.PI * i) / subCount - Math.PI / 2;
+      const angle = (2 * Math.PI * i) / subCount - Math.PI / 2 + offset;
       const x = centerX + radius * Math.cos(angle);
       const y = centerY + radius * Math.sin(angle);
       const size = 96 + 48 * (sub.progress/100);
