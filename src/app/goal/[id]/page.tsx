@@ -260,9 +260,11 @@ export default function GoalDetailPage({ params }: PageProps) {
             // 끝점: 서브 노드 테두리
             const endX = subNode.x - subR * Math.cos(angle);
             const endY = subNode.y - subR * Math.sin(angle);
-            // 곡선 제어점 (중간점 기준, 살짝 휘게)
-            const midX = (startX + endX) / 2 + 30 * Math.sin(angle);
-            const midY = (startY + endY) / 2 - 30 * Math.cos(angle);
+            // 곡선 제어점 (중간점 기준, 거리 비례 offset)
+            const distance = Math.sqrt((endX - startX) ** 2 + (endY - startY) ** 2);
+            const controlOffset = Math.max(30, Math.min(distance * 0.3, 120));
+            const midX = (startX + endX) / 2 + controlOffset * Math.sin(angle);
+            const midY = (startY + endY) / 2 - controlOffset * Math.cos(angle);
             return (
               <g key={idx}>
                 <path
@@ -288,8 +290,18 @@ export default function GoalDetailPage({ params }: PageProps) {
           })}
         </svg>
         {/* 메인 목표 뉴런 노드 */}
-        <div ref={mainRef} className="main-node absolute left-1/2 top-32 -translate-x-1/2 z-20 group mb-2">
-          <div className="w-full max-w-sm h-48 md:w-72 md:h-72 rounded-full bg-gradient-to-br from-neon-cyan/80 to-neon-purple/60 border-4 border-neon-cyan shadow-xl neon-glow-cyan flex flex-col items-center justify-center p-4 md:p-6 hover:scale-105 transition-all duration-300 group-hover:border-neon-purple relative">
+        <div
+          ref={mainRef}
+          className="main-node absolute z-20 group mb-2"
+          style={{
+            left: positions.main.x - ((96 + 48 * (goal.progress/100)) / 2),
+            top: positions.main.y - ((96 + 48 * (goal.progress/100)) / 2),
+            width: 96 + 48 * (goal.progress/100),
+            height: 96 + 48 * (goal.progress/100),
+            transition: 'left 0.5s, top 0.5s, width 0.5s, height 0.5s',
+          }}
+        >
+          <div className="w-full h-full rounded-full bg-gradient-to-br from-neon-cyan/80 to-neon-purple/60 border-4 border-neon-cyan shadow-xl neon-glow-cyan flex flex-col items-center justify-center p-4 md:p-6 hover:scale-105 transition-all duration-300 group-hover:border-neon-purple relative">
             <h2 className="text-base md:text-xl font-extrabold mb-2 text-white group-hover:text-neon-cyan transition-colors text-center truncate max-w-full drop-shadow-xl" title={goal.title} aria-label={`목표 제목: ${goal.title}`}>
               {truncateText(goal.title, 12)}
             </h2>
