@@ -251,7 +251,7 @@ export default function GoalDetailPage({ params }: PageProps) {
           홈
         </Link>
       </header>
-      <main ref={containerRef} className="flex-1 flex flex-col items-center justify-center gap-12 px-4 overflow-hidden relative">
+      <main ref={containerRef} className="flex-1 flex flex-col items-center justify-center gap-12 px-2 md:px-4 overflow-hidden relative">
         {/* 네온 곡선 SVG 오버레이 */}
         <svg className="pointer-events-none absolute left-0 top-0 w-full h-full z-10" width="100%" height="100%"
           viewBox={`0 0 ${containerRef.current?.offsetWidth || 1920} ${containerRef.current?.offsetHeight || 1080}`}
@@ -301,8 +301,8 @@ export default function GoalDetailPage({ params }: PageProps) {
         </svg>
         {/* 메인 목표 뉴런 노드 */}
         <div ref={mainRef} className="absolute left-1/2 top-32 -translate-x-1/2 z-20 group mb-2">
-          <div className="w-72 h-72 md:w-96 md:h-96 rounded-full bg-gradient-to-br from-neon-cyan/80 to-neon-purple/60 border-4 border-neon-cyan shadow-2xl neon-glow-cyan flex flex-col items-center justify-center p-10 hover:scale-105 transition-all duration-300 group-hover:border-neon-purple relative animate-pulse-slow">
-            <h2 className="text-2xl font-extrabold mb-3 text-white group-hover:text-neon-cyan transition-colors text-center truncate max-w-full drop-shadow-2xl" title={goal.title} aria-label={`목표 제목: ${goal.title}`}>
+          <div className="w-full max-w-xs h-60 md:w-96 md:h-96 rounded-full bg-gradient-to-br from-neon-cyan/80 to-neon-purple/60 border-4 border-neon-cyan shadow-2xl neon-glow-cyan flex flex-col items-center justify-center p-4 md:p-10 hover:scale-105 transition-all duration-300 group-hover:border-neon-purple relative animate-pulse-slow">
+            <h2 className="text-base md:text-2xl font-extrabold mb-3 text-white group-hover:text-neon-cyan transition-colors text-center truncate max-w-full drop-shadow-2xl" title={goal.title} aria-label={`목표 제목: ${goal.title}`}>
               {truncateText(goal.title, 12)}
             </h2>
             <div className="w-full max-w-40 mx-auto mb-3">
@@ -334,12 +334,12 @@ export default function GoalDetailPage({ params }: PageProps) {
             style={{
               left: positions.subs[idx]?.x ? positions.subs[idx].x - positions.subs[idx].size/2 : '50%',
               top: positions.subs[idx]?.y ? positions.subs[idx].y - positions.subs[idx].size/2 : '70%',
-              width: positions.subs[idx]?.size || 128,
-              height: positions.subs[idx]?.size || 128,
+              width: positions.subs[idx]?.size || (typeof window !== 'undefined' && window.innerWidth < 768 ? 160 : 224),
+              height: positions.subs[idx]?.size || (typeof window !== 'undefined' && window.innerWidth < 768 ? 160 : 224),
               transition: 'left 0.5s, top 0.5s, width 0.5s, height 0.5s',
             }}
           >
-            <div className="w-full h-full rounded-full bg-gradient-to-br from-glass/80 to-glass/40 border-2 border-neon-cyan/50 shadow-lg backdrop-blur-sm flex flex-col items-center justify-center p-4 hover:scale-105 transition-all duration-300 group-hover:border-neon-cyan">
+            <div className="w-full h-full rounded-full bg-gradient-to-br from-glass/80 to-glass/40 border-2 border-neon-cyan/50 shadow-lg backdrop-blur-sm flex flex-col items-center justify-center p-2 md:p-4 hover:scale-105 transition-all duration-300 group-hover:border-neon-cyan">
               <div className={`w-8 h-8 flex items-center justify-center rounded-full mb-2
                 ${sub.progress === 100 ? 'bg-neon-cyan text-white' : sub.progress > 0 ? 'border-2 border-neon-cyan text-neon-cyan' : 'border-2 border-white/30 text-white/50'}
               `} title="하위 목표 순서" aria-label={`하위 목표 순서: ${idx + 1}`}>

@@ -340,7 +340,7 @@ export default function HomePage() {
         <h1 className="text-3xl font-bold bg-gradient-to-r from-neon-purple to-neon-cyan bg-clip-text text-transparent">Branchify</h1>
         <button className="border border-neon-cyan text-neon-cyan rounded-full px-6 py-2 hover:bg-neon-cyan/10 transition">새 목표</button>
       </header>
-      <main ref={containerRef} className="relative flex-1 flex flex-wrap items-center justify-center gap-8 px-8 overflow-hidden">
+      <main ref={containerRef} className="relative flex-1 flex flex-wrap items-center justify-center gap-4 md:gap-8 px-2 md:px-8 overflow-hidden">
         {/* 뉴런 연결 SVG 오버레이 */}
         <svg
           className="pointer-events-none absolute left-0 top-0 w-full h-full z-10"
@@ -444,7 +444,7 @@ export default function HomePage() {
               {/* 뉴런 노드 */}
               <div className="relative">
                 {/* 뉴런 본체 */}
-                <div className="w-80 h-80 rounded-full bg-gradient-to-br from-glass/80 to-glass/40 border-2 border-neon-cyan/50 shadow-lg backdrop-blur-sm flex flex-col items-center justify-center p-6 hover:scale-105 transition-all duration-300 group-hover:border-neon-cyan">
+                <div className="w-full max-w-xs h-60 md:w-80 md:h-80 rounded-full bg-gradient-to-br from-glass/80 to-glass/40 border-2 border-neon-cyan/50 shadow-lg backdrop-blur-sm flex flex-col items-center justify-center p-3 md:p-6 hover:scale-105 transition-all duration-300 group-hover:border-neon-cyan">
                   {/* 뉴런 돌출부 (axon) */}
                   <div className="absolute -right-4 top-1/2 transform -translate-y-1/2 w-8 h-2 bg-gradient-to-r from-neon-cyan to-transparent rounded-full opacity-60"></div>
                   <div className="absolute -left-4 top-1/2 transform -translate-y-1/2 w-8 h-2 bg-gradient-to-l from-neon-cyan to-transparent rounded-full opacity-60"></div>
@@ -452,7 +452,7 @@ export default function HomePage() {
                   <div className="absolute top-1/2 -left-4 transform -translate-y-1/2 w-2 h-8 bg-gradient-to-t from-neon-cyan to-transparent rounded-full opacity-60"></div>
                   {/* 기본 정보 */}
                   <div className="text-center max-w-[220px] mx-auto overflow-hidden">
-                    <h2 className="text-xl font-extrabold mb-2 text-white group-hover:text-neon-cyan transition-colors truncate max-w-full drop-shadow-xl" title={goal.title} aria-label={`목표 제목: ${goal.title}`}>
+                    <h2 className="text-base md:text-xl font-extrabold mb-2 text-white group-hover:text-neon-cyan transition-colors truncate max-w-full drop-shadow-xl" title={goal.title} aria-label={`목표 제목: ${goal.title}`}>
                       {truncateText(goal.title, 12)}
                     </h2>
                     {/* 대표 태그만 */}
