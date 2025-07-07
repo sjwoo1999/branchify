@@ -450,25 +450,19 @@ export default function HomePage() {
                   <div className="absolute -left-4 top-1/2 transform -translate-y-1/2 w-8 h-2 bg-gradient-to-l from-neon-cyan to-transparent rounded-full opacity-60"></div>
                   <div className="absolute top-1/2 -right-4 transform -translate-y-1/2 w-2 h-8 bg-gradient-to-b from-neon-cyan to-transparent rounded-full opacity-60"></div>
                   <div className="absolute top-1/2 -left-4 transform -translate-y-1/2 w-2 h-8 bg-gradient-to-t from-neon-cyan to-transparent rounded-full opacity-60"></div>
-                  
-                  {/* 뉴런 내부 콘텐츠 */}
+                  {/* 기본 정보 */}
                   <div className="text-center max-w-[220px] mx-auto overflow-hidden">
                     <h2 className="text-lg font-bold mb-2 text-white group-hover:text-neon-cyan transition-colors truncate max-w-full drop-shadow-lg" title={goal.title}>
                       {truncateText(goal.title, 12)}
                     </h2>
-                    <p className="text-xs text-white/70 mb-3 line-clamp-2 max-h-[2.6em] overflow-hidden">
-                      {goal.description}
-                    </p>
-                    
-                    {/* 태그들 */}
+                    {/* 대표 태그만 */}
                     <div className="flex gap-2 mb-4 flex-wrap justify-center">
-                      {goal.tags.slice(0, 3).map(tag => (
+                      {goal.tags.slice(0, 1).map(tag => (
                         <span key={tag} className="text-xs border border-neon-cyan/50 rounded-full px-2 py-1 text-neon-cyan bg-white/5 backdrop-blur-sm">
                           {tag}
                         </span>
                       ))}
                     </div>
-                    
                     {/* 진행률 */}
                     <div className="w-full max-w-48 mx-auto mb-4">
                       <div className="w-full h-2 bg-white/10 rounded-full overflow-hidden">
@@ -481,10 +475,28 @@ export default function HomePage() {
                         <span className="text-neon-cyan text-sm font-medium">{goal.progress}%</span>
                       </div>
                     </div>
-                    
-                    {/* 하위 목표 수 */}
-                    <div className="text-xs text-white/50">
-                      {goal.subGoals.length}개 하위 목표
+                  </div>
+                  {/* 상세 정보 오버레이: hover 시만 노출 */}
+                  <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/80 bg-opacity-90 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-20 p-6 pointer-events-none">
+                    <div className="text-center max-w-[220px] mx-auto">
+                      <h2 className="text-lg font-bold mb-2 text-neon-cyan truncate max-w-full drop-shadow-lg" title={goal.title}>
+                        {truncateText(goal.title, 12)}
+                      </h2>
+                      <p className="text-xs text-white/80 mb-3 line-clamp-2 max-h-[2.6em] overflow-hidden">
+                        {goal.description}
+                      </p>
+                      {/* 전체 태그 */}
+                      <div className="flex gap-2 mb-4 flex-wrap justify-center">
+                        {goal.tags.map(tag => (
+                          <span key={tag} className="text-xs border border-neon-cyan/50 rounded-full px-2 py-1 text-neon-cyan bg-white/5 backdrop-blur-sm">
+                            {tag}
+                          </span>
+                        ))}
+                      </div>
+                      {/* 하위 목표 수 */}
+                      <div className="text-xs text-white/60">
+                        {goal.subGoals.length}개 하위 목표
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -497,7 +509,7 @@ export default function HomePage() {
                   <div className="absolute inset-0 rounded-full border border-neon-cyan/20 animate-ping"></div>
                 </div>
               </div>
-        </div>
+            </div>
           </Link>
         ))}
       </main>
