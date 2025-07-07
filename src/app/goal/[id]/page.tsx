@@ -201,12 +201,12 @@ export default function GoalDetailPage({ params }: PageProps) {
     const containerRect = containerRef.current.getBoundingClientRect();
     const width = containerRect.width;
     const height = containerRect.height;
-    const margin = 100;
+    const margin = 180;
     const getNodeSize = (progress: number) => 96 + 48 * (progress/100);
     // force 파라미터를 더 세게, 퍼짐을 강화
     const N = goal.subGoals.length + 1;
     const chargeStrength = -2000;
-    const linkDistance = 320;
+    const linkDistance = 420;
     const linkStrength = 1;
     // 노드 데이터 준비 (중심+서브), 초기 위치를 원형+랜덤 분포로
     const nodes = [
