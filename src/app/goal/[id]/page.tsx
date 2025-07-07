@@ -301,29 +301,31 @@ export default function GoalDetailPage({ params }: PageProps) {
         </svg>
         {/* 메인 목표 뉴런 노드 */}
         <div ref={mainRef} className="absolute left-1/2 top-32 -translate-x-1/2 z-20 group mb-2">
-          <div className="w-56 h-56 rounded-full bg-gradient-to-br from-glass/80 to-glass/40 border-2 border-neon-cyan/50 shadow-lg backdrop-blur-sm flex flex-col items-center justify-center p-6 hover:scale-105 transition-all duration-300 group-hover:border-neon-cyan">
-            <h2 className="text-xl font-bold mb-2 text-white group-hover:text-neon-cyan transition-colors text-center truncate max-w-full drop-shadow-lg" title={goal.title}>
+          <div className="w-72 h-72 md:w-96 md:h-96 rounded-full bg-gradient-to-br from-neon-cyan/80 to-neon-purple/60 border-4 border-neon-cyan shadow-2xl neon-glow-cyan flex flex-col items-center justify-center p-10 hover:scale-105 transition-all duration-300 group-hover:border-neon-purple relative animate-pulse-slow">
+            <h2 className="text-2xl font-extrabold mb-3 text-white group-hover:text-neon-cyan transition-colors text-center truncate max-w-full drop-shadow-2xl" title={goal.title}>
               {truncateText(goal.title, 12)}
             </h2>
-            <div className="w-full max-w-40 mx-auto mb-2">
-              <div className="w-full h-2 bg-white/10 rounded-full overflow-hidden">
-                <div className="h-2 bg-gradient-to-r from-neon-cyan to-neon-purple rounded-full transition-all duration-500" style={{width: `${goal.progress}%`}} />
+            <div className="w-full max-w-40 mx-auto mb-3">
+              <div className="w-full h-3 bg-white/10 rounded-full overflow-hidden">
+                <div className="h-3 bg-gradient-to-r from-neon-cyan to-neon-purple rounded-full transition-all duration-500" style={{width: `${goal.progress}%`}} />
               </div>
-              <div className="text-center mt-1">
-                <span className="text-neon-cyan text-sm font-medium">{goal.progress}%</span>
+              <div className="text-center mt-2">
+                <span className="text-neon-cyan text-base font-bold">{goal.progress}%</span>
               </div>
             </div>
             <div className="flex gap-2 mb-2 flex-wrap justify-center">
               {goal.tags.slice(0,3).map(tag => (
-                <span key={tag} className="text-xs border border-neon-cyan/50 rounded-full px-2 py-1 text-neon-cyan bg-white/5 backdrop-blur-sm">{tag}</span>
+                <span key={tag} className="text-sm border-2 border-neon-cyan rounded-full px-3 py-1 text-neon-cyan bg-white/10 backdrop-blur-sm font-semibold shadow-md">
+                  {tag}
+                </span>
               ))}
               {goal.tags.length > 3 && (
-                <span className="text-xs border border-neon-cyan/30 rounded-full px-2 py-1 text-neon-cyan/60 bg-white/5 backdrop-blur-sm">+{goal.tags.length-3}</span>
+                <span className="text-sm border border-neon-cyan/30 rounded-full px-2 py-1 text-neon-cyan/60 bg-white/5 backdrop-blur-sm">+{goal.tags.length-3}</span>
               )}
             </div>
-            <p className="text-xs text-white/70 text-center max-w-[180px] mx-auto line-clamp-2 overflow-hidden" title={goal.description}>{goal.description}</p>
+            <p className="text-sm text-white/80 text-center max-w-[220px] mx-auto line-clamp-2 overflow-hidden" title={goal.description}>{goal.description}</p>
           </div>
-          <div className="absolute inset-0 rounded-full bg-neon-cyan/20 blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+          <div className="absolute inset-0 rounded-full bg-neon-cyan/30 blur-2xl opacity-80 animate-pulse-slow pointer-events-none"></div>
         </div>
         {/* 서브골 뉴런 노드들 (반원 위에 분산) */}
         {goal.subGoals.map((sub, idx) => (
